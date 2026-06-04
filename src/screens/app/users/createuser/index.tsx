@@ -1,4 +1,4 @@
-import { Fragment, useState, type KeyboardEvent } from 'react';
+import { Fragment, useState, useEffect, useRef, type KeyboardEvent } from 'react';
 import {
     Box,
     Typography,
@@ -8,8 +8,10 @@ import {
     InputBase,
     Chip,
     IconButton,
-    InputAdornment,
     FormControl,
+    Paper,
+    ClickAwayListener,
+    ListItemButton,
 } from '@mui/material';
 import {
     BadgeRounded,
@@ -21,8 +23,12 @@ import {
     VisibilityRounded,
     VisibilityOffRounded,
     PersonSearchRounded,
+    SearchRounded,
+    KeyboardArrowDownRounded,
 } from '@mui/icons-material';
 import TabTitle from '../../../../components/tabtitle';
+import { service } from '../../../../service';
+import { SnackNotification } from '../../../../helper/snackMessage';
 import {
     BRAND_RED,
     BRAND_DARK,
@@ -41,6 +47,140 @@ import {
 } from './styles';
 
 const INITIAL_SKILLS = ['React.js', 'Project Management', 'UI/UX Design'];
+
+interface CitySearchSelectProps {
+    cities: string[];
+    value: string;
+    onChange: (city: string) => void;
+}
+
+const CitySearchSelect = ({ cities, value, onChange }: CitySearchSelectProps) => {
+    const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const anchorRef = useRef<HTMLDivElement>(null);
+    const searchRef = useRef<HTMLInputElement>(null);
+
+    const filtered = search.trim()
+        ? cities.filter(c => c.toLowerCase().includes(search.toLowerCase()))
+        : cities;
+
+    const handleOpen = () => {
+        setOpen(true);
+        setTimeout(() => searchRef.current?.focus(), 50);
+    };
+
+    const handleSelect = (city: string) => {
+        onChange(city);
+        setOpen(false);
+        setSearch('');
+    };
+
+    return (
+        <ClickAwayListener onClickAway={() => { setOpen(false); setSearch(''); }}>
+            <Box sx={{ position: 'relative' }}>
+                <Box
+                    ref={anchorRef}
+                    onClick={handleOpen}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        px: 1.5,
+                        py: '9px',
+                        border: open ? `1.5px solid ${BRAND_RED}` : '1.5px solid #E5E7EB',
+                        borderRadius: '10px',
+                        background: '#FAFAFA',
+                        cursor: 'pointer',
+                        minHeight: 42,
+                        transition: 'border-color 0.15s',
+                        '&:hover': { borderColor: BRAND_RED },
+                    }}
+                >
+                    <LocationOnRounded sx={{ color: 'grey.400', fontSize: 17, flexShrink: 0 }} />
+                    <Typography sx={{ flex: 1, fontSize: '13.5px', color: value ? 'grey.800' : 'grey.400' }}>
+                        {value || 'Select office location'}
+                    </Typography>
+                    <KeyboardArrowDownRounded
+                        sx={{
+                            color: 'grey.400',
+                            fontSize: 18,
+                            flexShrink: 0,
+                            transition: 'transform 0.2s',
+                            transform: open ? 'rotate(180deg)' : 'none',
+                        }}
+                    />
+                </Box>
+
+                {open && (
+                    <Paper
+                        elevation={4}
+                        sx={{
+                            position: 'absolute',
+                            top: 'calc(100% + 4px)',
+                            left: 0,
+                            right: 0,
+                            zIndex: 1400,
+                            borderRadius: '10px',
+                            overflow: 'hidden',
+                            border: '1px solid #E5E7EB',
+                        }}
+                    >
+                        {/* Search input */}
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            px: 1.5,
+                            py: 1,
+                            borderBottom: '1px solid #F0F0F0',
+                            background: '#fff',
+                        }}>
+                            <SearchRounded sx={{ color: 'grey.400', fontSize: 17 }} />
+                            <InputBase
+                                inputRef={searchRef}
+                                fullWidth
+                                placeholder="Search city..."
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                sx={{ fontSize: '13px', color: 'grey.800' }}
+                            />
+                        </Box>
+
+                        {/* City list */}
+                        <Box sx={{ maxHeight: 220, overflowY: 'auto' }}>
+                            {filtered.length === 0 ? (
+                                <Typography sx={{ px: 2, py: 1.5, fontSize: '13px', color: 'grey.400' }}>
+                                    No cities found
+                                </Typography>
+                            ) : (
+                                filtered.map(city => (
+                                    <ListItemButton
+                                        key={city}
+                                        selected={city === value}
+                                        onClick={() => handleSelect(city)}
+                                        sx={{
+                                            fontSize: '13.5px',
+                                            py: 0.8,
+                                            px: 2,
+                                            '&.Mui-selected': {
+                                                background: '#FFF1F2',
+                                                color: BRAND_RED,
+                                                fontWeight: 600,
+                                            },
+                                            '&:hover': { background: '#FFF8F8' },
+                                        }}
+                                    >
+                                        {city}
+                                    </ListItemButton>
+                                ))
+                            )}
+                        </Box>
+                    </Paper>
+                )}
+            </Box>
+        </ClickAwayListener>
+    );
+};
 
 const SectionHeader = ({ icon, title }: { icon: React.ReactNode; title: string }) => (
     <Box sx={sectionTitle}>
@@ -69,16 +209,30 @@ const CreateUser = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [skills, setSkills] = useState<string[]>(INITIAL_SKILLS);
     const [skillInput, setSkillInput] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [cities, setCities] = useState<string[]>([]);
+    const [roles, setRoles] = useState<string[]>([]);
+
+    useEffect(() => {
+        service.getCities().then((res: any) => {
+            const data = res?.data ?? res
+            setCities(Array.isArray(data) ? data : [])
+        }).catch(() => setCities([]))
+        service.getRoles().then((res: any) => {
+            const data = res?.data ?? res
+            setRoles(Array.isArray(data) ? data : [])
+        }).catch(() => setRoles([]))
+    }, []);
 
     const [form, setForm] = useState({
         employeeId: '',
         fullName: '',
         email: '',
-        password: '••••••••••••••',
+        password: '123456',
         role: '',
         department: '',
         reportingManager: '',
-        officeLocation: 'Headquarters - London',
+        officeLocation: '',
     });
 
     const handleSkillKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -93,6 +247,41 @@ const CreateUser = () => {
 
     const removeSkill = (skill: string) => {
         setSkills(prev => prev.filter(s => s !== skill));
+    };
+
+    const handleSubmit = async () => {
+        if (!form.employeeId || !form.fullName || !form.email || !form.role || !form.department || !form.officeLocation) {
+            SnackNotification('Please fill all required fields', 'error');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            await service.onboardUser({
+                employeeId: form.employeeId,
+                fullName: form.fullName,
+                corporateEmail: form.email,
+                password: form.password,
+                role: form.role,
+                department: form.department,
+                officeLocation: form.officeLocation,
+            });
+            SnackNotification('User onboarded successfully', 'success');
+            setForm({
+                employeeId: '',
+                fullName: '',
+                email: '',
+                password: '123456',
+                role: '',
+                department: '',
+                reportingManager: '',
+                officeLocation: '',
+            });
+        } catch (error) {
+            console.error('Onboard error:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -168,18 +357,18 @@ const CreateUser = () => {
                         </Box>
                         <Box>
                             <FieldLabel>Temporary Password</FieldLabel>
-                            <Box sx={{ ...inputBase, justifyContent: 'space-between' }}>
+                            <Box sx={{ ...inputBase, justifyContent: 'space-between', bgcolor: '#f5f5f5' }}>
                                 <InputBase
                                     fullWidth
                                     type={showPassword ? 'text' : 'password'}
                                     value={form.password}
-                                    onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-                                    sx={{ fontSize: '13.5px', color: 'grey.800' }}
+                                    disabled
+                                    sx={{ fontSize: '13.5px', color: 'grey.500' }}
                                 />
                                 <IconButton size="small" onClick={() => setShowPassword(p => !p)} sx={{ p: 0.3 }}>
                                     {showPassword
-                                        ? <VisibilityOffRounded sx={{ fontSize: 18, color: 'grey.500' }} />
-                                        : <VisibilityRounded sx={{ fontSize: 18, color: 'grey.500' }} />
+                                        ? <VisibilityOffRounded sx={{ fontSize: 18, color: 'grey.400' }} />
+                                        : <VisibilityRounded sx={{ fontSize: 18, color: 'grey.400' }} />
                                     }
                                 </IconButton>
                             </Box>
@@ -205,10 +394,9 @@ const CreateUser = () => {
                                     sx={selectBase}
                                     renderValue={v => v || <Typography sx={{ color: 'grey.400', fontSize: '13.5px' }}>Select user role</Typography>}
                                 >
-                                    <MenuItem value="admin">Admin</MenuItem>
-                                    <MenuItem value="manager">Manager</MenuItem>
-                                    <MenuItem value="employee">Employee</MenuItem>
-                                    <MenuItem value="trainer">Trainer</MenuItem>
+                                    {roles.map(r => (
+                                        <MenuItem key={r} value={r}>{r}</MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
                         </Box>
@@ -248,23 +436,11 @@ const CreateUser = () => {
                         </Box>
                         <Box>
                             <FieldLabel>Office Location</FieldLabel>
-                            <FormControl fullWidth size="small">
-                                <Select
-                                    value={form.officeLocation}
-                                    onChange={e => setForm(f => ({ ...f, officeLocation: e.target.value }))}
-                                    sx={selectBase}
-                                    startAdornment={
-                                        <InputAdornment position="start">
-                                            <LocationOnRounded sx={{ color: 'grey.400', fontSize: 17 }} />
-                                        </InputAdornment>
-                                    }
-                                >
-                                    <MenuItem value="Headquarters - London">Headquarters - London</MenuItem>
-                                    <MenuItem value="New York Office">New York Office</MenuItem>
-                                    <MenuItem value="Singapore Office">Singapore Office</MenuItem>
-                                    <MenuItem value="Remote">Remote</MenuItem>
-                                </Select>
-                            </FormControl>
+                            <CitySearchSelect
+                                cities={cities}
+                                value={form.officeLocation}
+                                onChange={city => setForm(f => ({ ...f, officeLocation: city }))}
+                            />
                         </Box>
                     </Box>
                 </Box>
@@ -310,6 +486,8 @@ const CreateUser = () => {
                 <Box sx={actionRow}>
                     <Button
                         variant="contained"
+                        disabled={isSubmitting}
+                        onClick={handleSubmit}
                         sx={{
                             background: BRAND_DARK,
                             fontWeight: 600,
@@ -320,7 +498,7 @@ const CreateUser = () => {
                             '&:hover': { background: BRAND_RED },
                         }}
                     >
-                        Add User
+                        {isSubmitting ? 'Adding...' : 'Add User'}
                     </Button>
                 </Box>
             </Box>

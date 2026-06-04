@@ -1,6 +1,9 @@
 import { Route, Routes, Navigate } from 'react-router-dom'
 import {
     AdminDashboard,
+    Users,
+    Courses,
+    Departments,
 } from '../../screens/app';
 import Navigation from '../../components/navigation';
 import { appnavigationpath } from './apppath';
@@ -12,6 +15,9 @@ const AppNavigation = () => {
         <Navigation>
             <Routes>
                 <Route path={appnavigationpath.admindashboard} element={<AdminDashboard />} />
+                <Route path={appnavigationpath.users} element={<Users />} />
+                <Route path={appnavigationpath.courses} element={<Courses />} />
+                <Route path={appnavigationpath.departments} element={<Departments />} />
 
                 <Route path='/' index={true} element={<Navigate to={appnavigationpath.admindashboard} replace={true} />} />
                 <Route path='*' index={true} element={<Navigate to={appnavigationpath.admindashboard} replace={true} />} />

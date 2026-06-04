@@ -45,10 +45,11 @@ export const AdminProfile = createSlice({
             state.createdAt = action.payload.createdAt
             state.updatedAt = action.payload.updatedAt
         },
+        resetProfile: () => AdminProfileState,
     },
 })
 
 // Action creators are generated for each case reducer function
-export const { setProfile } = AdminProfile.actions
+export const { setProfile, resetProfile } = AdminProfile.actions
 
 export default AdminProfile.reducer

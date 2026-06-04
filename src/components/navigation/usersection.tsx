@@ -1,17 +1,22 @@
 import { Fragment, useState, type MouseEvent } from 'react';
-import { Box, useTheme, Avatar, Typography, IconButton, Divider, Stack, MenuItem, Popover } from '@mui/material'
+import { Box, useTheme, Avatar, Typography, Divider, Stack, MenuItem, Popover } from '@mui/material'
 import { DashboardRounded } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-// import { setUserId } from '../../store/reducer/InitialUser';
+import { useDispatch } from 'react-redux';
 import UserLogout from './userlogout';
 import { StorageManager } from '../../storagemanager';
+import { setIsLogin } from '../../store/reducer/AuthHelper';
+import { resetProfile } from '../../store/reducer/AdminProfile';
+import { useAppSelector } from '../../hooks/useAppSelector';
 
 const UserSection = () => {
   const Navigate = useNavigate();
+  const dispatch = useDispatch();
   const { palette: { primary, common, } } = useTheme();
-  const [open, setOpen] = useState<HTMLButtonElement | null>(null);
+  const [open, setOpen] = useState<HTMLElement | null>(null);
+  const profile = useAppSelector((state) => state.adminProfile);
 
-  const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleOpen = (event: MouseEvent<HTMLDivElement>) => {
     setOpen(event.currentTarget);
   };
 
@@ -22,26 +27,26 @@ const UserSection = () => {
   const onLogout = () => {
     StorageManager.removeItems();
     sessionStorage.clear();
-    handleClose()
+    dispatch(setIsLogin({ isLogin: false }));
+    dispatch(resetProfile());
+    handleClose();
   };
 
   return (
     <Fragment>
-      <IconButton
+      <Avatar
         onClick={handleOpen}
-        sx={{ background: primary?.light, borderRadius: "50%", }}
+        sx={{
+          width: 38,
+          height: 38,
+          bgcolor: primary?.main,
+          cursor: 'pointer',
+          fontSize: '15px',
+          fontWeight: 700,
+        }}
       >
-        <Avatar
-          src={"/profileImage.png"}
-          alt={"GB"}
-          sx={{
-            // color: primary?.main,
-            width: "36px",
-            height: "36px",
-            border: `1px solid ${primary?.light}`,
-            transition: "ease-in-out 0.3s"
-          }} />
-      </IconButton>
+        {profile?.name ? profile.name.charAt(0).toUpperCase() : 'A'}
+      </Avatar>
 
       <Popover
         open={Boolean(open)}
@@ -69,10 +74,10 @@ const UserSection = () => {
 
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant='h5' noWrap sx={{ fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", color: "#212B36" }}>
-            Govinda Biswas
+            {profile?.name || 'Admin User'}
           </Typography>
           <Typography variant="subtitle1" noWrap sx={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", }}>
-            DM
+            {profile?.role?.replace('_', ' ') || ''}
           </Typography>
         </Box>
 

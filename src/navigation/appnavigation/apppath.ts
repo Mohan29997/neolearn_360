@@ -1,4 +1,10 @@
 export const appnavigationpath = {
     "admindashboard": "/admin/dashboard",
-
+    "users": "/admin/users",
+    "courses": "/admin/courses",
+    "departments": "/admin/departments",
+    "learningprograms": "/admin/learning-programs",
+    "benchonboarding": "/admin/bench-onboarding",
+    "learningjourneys": "/admin/learning-journeys",
+    "settings": "/admin/settings",
 } as const;

@@ -1,35 +1,20 @@
-import { Fragment, useState, type KeyboardEvent } from 'react';
+import { Fragment, useState } from 'react';
 import {
     Box, Typography, Button, Select, MenuItem, FormControl,
-    InputBase, Chip, Avatar, AvatarGroup, Switch, LinearProgress,
+    InputBase, Avatar, Switch, LinearProgress,
     Divider,
 } from '@mui/material';
 import {
-    CorporateFareRounded, ChevronRightRounded, PersonSearchRounded,
+    CorporateFareRounded, ChevronRightRounded,
     EditRounded, SaveRounded, PersonRounded,
 } from '@mui/icons-material';
 import TabTitle from '../../../../components/tabtitle';
 import {
     BRAND_RED, BRAND_DARK,
     breadcrumbRow, twoColLayout, formCard, previewCard,
-    fieldRow, fieldLabelSx, inputBase, selectBase, switchSx,
-    coordinatorChip, tagBox, resourceChip, actionRow,
+    fieldRow, fieldLabelSx, inputBase, selectBase, switchSx, actionRow,
     coverImageSx, changeCoverBtnSx, deptIconBoxSx, previewSectionLabelSx,
 } from './styles';
-
-interface Coordinator {
-    id: number;
-    name: string;
-    initials: string;
-    bgColor: string;
-}
-
-const INITIAL_COORDINATORS: Coordinator[] = [
-    { id: 1, name: 'Elena Vance', initials: 'EV', bgColor: '#7B61FF' },
-    { id: 2, name: 'Mark Scout', initials: 'MS', bgColor: '#FF7043' },
-];
-
-const INITIAL_RESOURCE_GROUPS = ['GLOBAL_ADMIN', 'HR_SHARED_SERVICES'];
 
 const FieldLabel = ({ children }: { children: React.ReactNode }) => (
     <Typography sx={fieldLabelSx}>{children}</Typography>
@@ -39,31 +24,12 @@ const CreateDepartment = () => {
     const [departmentName, setDepartmentName] = useState('');
     const [headOfDepartment, setHeadOfDepartment] = useState('');
     const [globalVisibility, setGlobalVisibility] = useState(true);
-    const [coordinators, setCoordinators] = useState<Coordinator[]>(INITIAL_COORDINATORS);
-    const [coordinatorSearch, setCoordinatorSearch] = useState('');
-    const [resourceGroups, setResourceGroups] = useState<string[]>(INITIAL_RESOURCE_GROUPS);
-    const [resourceInput, setResourceInput] = useState('');
-
-    const handleResourceKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && resourceInput.trim()) {
-            e.preventDefault();
-            const tag = resourceInput.trim().toUpperCase().replace(/\s+/g, '_');
-            if (!resourceGroups.includes(tag)) {
-                setResourceGroups(prev => [...prev, tag]);
-            }
-            setResourceInput('');
-        }
-    };
-
     const filledCount = [
         departmentName !== '',
         headOfDepartment !== '',
         globalVisibility,
-        coordinators.length > 0,
-        resourceGroups.length > 0,
-        true,
     ].filter(Boolean).length;
-    const progress = Math.round((filledCount / 6) * 100);
+    const progress = Math.round((filledCount / 3) * 100);
 
     const headLabel = headOfDepartment
         ? headOfDepartment.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')
@@ -148,76 +114,6 @@ const CreateDepartment = () => {
                                 </Box>
                             </Box>
 
-                            {/* L&D Coordinators */}
-                            <Box sx={{ mb: 2.5 }}>
-                                <FieldLabel>L&D Coordinators</FieldLabel>
-                                <Box sx={inputBase}>
-                                    <PersonSearchRounded sx={{ color: 'grey.400', fontSize: 17, flexShrink: 0 }} />
-                                    <InputBase
-                                        fullWidth
-                                        placeholder="Search and select team members..."
-                                        value={coordinatorSearch}
-                                        onChange={e => setCoordinatorSearch(e.target.value)}
-                                        sx={{ fontSize: '13.5px', color: 'grey.800' }}
-                                    />
-                                </Box>
-                                {coordinators.length > 0 && (
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1.5 }}>
-                                        {coordinators.map(c => (
-                                            <Chip
-                                                key={c.id}
-                                                avatar={
-                                                    <Avatar sx={{
-                                                        bgcolor: `${c.bgColor} !important`,
-                                                        color: '#fff !important',
-                                                        fontSize: '10px !important',
-                                                        width: '22px !important',
-                                                        height: '22px !important',
-                                                    }}>
-                                                        {c.initials}
-                                                    </Avatar>
-                                                }
-                                                label={c.name}
-                                                onDelete={() => setCoordinators(prev => prev.filter(x => x.id !== c.id))}
-                                                size="small"
-                                                sx={coordinatorChip}
-                                            />
-                                        ))}
-                                    </Box>
-                                )}
-                            </Box>
-
-                            {/* Resource Management Groups */}
-                            <Box sx={{ mb: 3 }}>
-                                <FieldLabel>Resource Management Groups</FieldLabel>
-                                <Box sx={tagBox}>
-                                    {resourceGroups.map(tag => (
-                                        <Chip
-                                            key={tag}
-                                            label={tag}
-                                            onDelete={() => setResourceGroups(prev => prev.filter(g => g !== tag))}
-                                            size="small"
-                                            sx={resourceChip}
-                                        />
-                                    ))}
-                                    <InputBase
-                                        value={resourceInput}
-                                        onChange={e => setResourceInput(e.target.value)}
-                                        onKeyDown={handleResourceKeyDown}
-                                        placeholder="Type to add tags..."
-                                        sx={{
-                                            flex: 1,
-                                            minWidth: 130,
-                                            fontSize: '13.5px',
-                                            color: 'grey.800',
-                                            '& input::placeholder': { color: 'grey.400' },
-                                        }}
-                                    />
-                                </Box>
-                                <Typography variant="caption" sx={{ color: 'grey.400', mt: 0.5, display: 'block', fontSize: '11px' }}>
-                                    Press enter to create a new resource chip.
-                                </Typography>
-                            </Box>
 
                             {/* Actions */}
                             <Box sx={actionRow}>
@@ -289,32 +185,6 @@ const CreateDepartment = () => {
                                     </Avatar>
                                     <Typography sx={{ fontSize: '13px', color: headOfDepartment ? 'grey.800' : 'grey.400' }}>
                                         {headLabel}
-                                    </Typography>
-                                </Box>
-                            </Box>
-
-                            <Divider sx={{ borderColor: 'grey.100', mx: 2 }} />
-
-                            {/* Coordinators */}
-                            <Box sx={{ px: 2, py: 1.5 }}>
-                                <Typography sx={previewSectionLabelSx}>Coordinators</Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                                    {coordinators.length > 0 ? (
-                                        <AvatarGroup max={3} sx={{
-                                            '& .MuiAvatar-root': {
-                                                width: 28, height: 28, fontSize: '10px',
-                                                border: '2px solid #fff',
-                                            },
-                                        }}>
-                                            {coordinators.map(c => (
-                                                <Avatar key={c.id} sx={{ bgcolor: c.bgColor, color: '#fff' }}>
-                                                    {c.initials}
-                                                </Avatar>
-                                            ))}
-                                        </AvatarGroup>
-                                    ) : null}
-                                    <Typography sx={{ fontSize: '12px', color: 'grey.400' }}>
-                                        +{Math.max(0, coordinators.length - 3)}
                                     </Typography>
                                 </Box>
                             </Box>

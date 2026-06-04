@@ -63,7 +63,7 @@ export const AXIOS = () => {
                         return API(originalRequest);
                     } else {
                         store.dispatch(setIsLogin({ isLogin: false }))
-                        StorageManager.caller();
+                        StorageManager.appLogout();
                     }
                 } catch (error) {
                     console.log("token.error", error);
