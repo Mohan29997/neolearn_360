@@ -84,13 +84,13 @@ const CreateUserForm = ({ onSuccess }: CreateUserFormProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [cities, setCities] = useState<string[]>([]);
     const [roles, setRoles] = useState<string[]>([]);
-    const [departments, setDepartments] = useState<string[]>([]);
+    const [departments, setDepartments] = useState<{ name: string; manager_name?: string; managerName?: string }[]>([]);
     const [form, setForm] = useState({ employeeId: '', fullName: '', email: '', password: '123456', role: '', department: '', reportingManager: '', officeLocation: '' });
 
     useEffect(() => {
         service.getCities().then((res: any) => setCities(Array.isArray(res?.data ?? res) ? (res?.data ?? res) : [])).catch(() => { });
         service.getRoles().then((res: any) => setRoles(Array.isArray(res?.data ?? res) ? (res?.data ?? res) : [])).catch(() => { });
-        service.getDepartments().then((res: any) => setDepartments((res?.data ?? []).map((d: any) => d.name))).catch(() => { });
+        service.getDepartments().then((res: any) => setDepartments(res?.data ?? [])).catch(() => { });
     }, []);
 
     const handleSkillKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -102,13 +102,24 @@ const CreateUserForm = ({ onSuccess }: CreateUserFormProps) => {
     };
 
     const handleSubmit = async () => {
-        if (!form.employeeId || !form.fullName || !form.email || !form.role || !form.department || !form.officeLocation) {
+        if (!form.employeeId || !form.fullName || !form.email || !form.role || !form.officeLocation) {
             SnackNotification('Please fill all required fields', 'error');
             return;
         }
         setIsSubmitting(true);
         try {
-            await service.onboardUser({ employeeId: form.employeeId, fullName: form.fullName, corporateEmail: form.email, password: form.password, role: form.role, department: form.department, officeLocation: form.officeLocation });
+            await service.onboardUser({
+                employeeId: form.employeeId,
+                fullName: form.fullName,
+                corporateEmail: form.email,
+                password: form.password,
+                role: form.role,
+                department: form.department,
+                officeLocation: form.officeLocation,
+                ...(form.role.toUpperCase() === 'EMPLOYEE' && form.reportingManager
+                    ? { manager_name: form.reportingManager }
+                    : {}),
+            });
             SnackNotification('User onboarded successfully', 'success');
             setForm({ employeeId: '', fullName: '', email: '', password: '123456', role: '', department: '', reportingManager: '', officeLocation: '' });
             setSkills(INITIAL_SKILLS);
@@ -162,7 +173,7 @@ const CreateUserForm = ({ onSuccess }: CreateUserFormProps) => {
                     <Box>
                         <FieldLabel>Role</FieldLabel>
                         <FormControl fullWidth size="small">
-                            <Select displayEmpty value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))} sx={selectBase}
+                            <Select displayEmpty value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value, department: '', reportingManager: '' }))} sx={selectBase}
                                 renderValue={v => v || <Typography sx={{ color: 'grey.400', fontSize: '13.5px' }}>Select user role</Typography>}>
                                 {roles.map(r => <MenuItem key={r} value={r}>{r}</MenuItem>)}
                             </Select>
@@ -171,21 +182,29 @@ const CreateUserForm = ({ onSuccess }: CreateUserFormProps) => {
                     <Box>
                         <FieldLabel>Department</FieldLabel>
                         <FormControl fullWidth size="small">
-                            <Select displayEmpty value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))} sx={selectBase}
+                            <Select displayEmpty value={form.department} onChange={e => {
+                                const selectedName = e.target.value;
+                                const dept = departments.find(d => d.name === selectedName);
+                                const isEmployee = form.role.toUpperCase() === 'EMPLOYEE';
+                                const manager = isEmployee ? (dept?.manager_name || dept?.managerName || '') : form.reportingManager;
+                                setForm(f => ({ ...f, department: selectedName, reportingManager: manager }));
+                            }} sx={selectBase}
                                 renderValue={v => v || <Typography sx={{ color: 'grey.400', fontSize: '13.5px' }}>Select department</Typography>}>
-                                {departments.map(d => <MenuItem key={d} value={d}>{d}</MenuItem>)}
+                                {departments.map(d => <MenuItem key={d.name} value={d.name}>{d.name}</MenuItem>)}
                             </Select>
                         </FormControl>
                     </Box>
                 </Box>
                 <Box sx={fieldRow}>
-                    <Box>
-                        <FieldLabel>Reporting Manager</FieldLabel>
-                        <Box sx={inputBase}>
-                            <PersonSearchRounded sx={{ color: 'grey.400', fontSize: 17, flexShrink: 0 }} />
-                            <InputBase fullWidth placeholder="Search manager by name or ID" value={form.reportingManager} onChange={e => setForm(f => ({ ...f, reportingManager: e.target.value }))} sx={{ fontSize: '13.5px' }} />
+                    {form.role.toLowerCase() === 'employee' && (
+                        <Box>
+                            <FieldLabel>Reporting Manager</FieldLabel>
+                            <Box sx={{ ...inputBase, ...(form.department ? { bgcolor: '#f5f5f5' } : {}) }}>
+                                <PersonSearchRounded sx={{ color: 'grey.400', fontSize: 17, flexShrink: 0 }} />
+                                <InputBase fullWidth placeholder="Auto-filled from department" value={form.reportingManager} readOnly={!!form.department} onChange={e => !form.department && setForm(f => ({ ...f, reportingManager: e.target.value }))} sx={{ fontSize: '13.5px' }} />
+                            </Box>
                         </Box>
-                    </Box>
+                    )}
                     <Box>
                         <FieldLabel>Office Location</FieldLabel>
                         <CitySearchSelect cities={cities} value={form.officeLocation} onChange={city => setForm(f => ({ ...f, officeLocation: city }))} />

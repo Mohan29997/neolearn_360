@@ -10,8 +10,13 @@ import {
 } from "@mui/icons-material";
 import React from "react";
 import { appnavigationpath } from "../../navigation/appnavigation/apppath";
+import type { UserRole } from "../../store/reducer/AdminProfile";
 
-export const navigations = (): { _id: number, visible: true | false, isActive?: string[], navigator: string, name: string, icon: (color: string) => React.JSX.Element }[] => {
+const HIDE_USERS_ROLES: UserRole[] = ['MANAGER', 'EMPLOYEE'];
+
+export const navigations = (role?: UserRole): { _id: number, visible: true | false, isActive?: string[], navigator: string, name: string, icon: (color: string) => React.JSX.Element }[] => {
+    const showUsers      = !role || !HIDE_USERS_ROLES.includes(role);
+    const showForManager = !role || role !== 'EMPLOYEE';
     return [
         {
             _id: 1,
@@ -23,7 +28,7 @@ export const navigations = (): { _id: number, visible: true | false, isActive?: 
         },
         {
             _id: 2,
-            visible: true,
+            visible: showUsers,
             isActive: [appnavigationpath.users],
             navigator: appnavigationpath.users,
             name: "Users",
@@ -31,7 +36,7 @@ export const navigations = (): { _id: number, visible: true | false, isActive?: 
         },
         {
             _id: 3,
-            visible: true,
+            visible: showUsers,
             isActive: [appnavigationpath.departments],
             navigator: appnavigationpath.departments,
             name: "Departments",
@@ -39,7 +44,7 @@ export const navigations = (): { _id: number, visible: true | false, isActive?: 
         },
         {
             _id: 4,
-            visible: true,
+            visible: false,
             isActive: [appnavigationpath.learningprograms],
             navigator: appnavigationpath.learningprograms,
             name: "Learning Programs",
@@ -47,7 +52,7 @@ export const navigations = (): { _id: number, visible: true | false, isActive?: 
         },
         {
             _id: 5,
-            visible: true,
+            visible: showForManager,
             isActive: [appnavigationpath.courses],
             navigator: appnavigationpath.courses,
             name: "Courses",
@@ -55,10 +60,10 @@ export const navigations = (): { _id: number, visible: true | false, isActive?: 
         },
         {
             _id: 6,
-            visible: true,
+            visible: showForManager,
             isActive: [appnavigationpath.benchonboarding],
             navigator: appnavigationpath.benchonboarding,
-            name: "Bench Onboarding",
+            name: "Team Management",
             icon: (color: string) => <PersonAddAlt1Rounded fontSize="small" sx={{ color }} />
         },
         {

@@ -1,4 +1,6 @@
 import { type Dispatch, Fragment, type SetStateAction, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import type { RootState } from '../../store'
 import {
     Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText,
     Tooltip, Typography, useMediaQuery, ButtonBase
@@ -14,6 +16,7 @@ const DARK_BTN_BG = '#1C1C2E';
 const SideDrawer = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dispatch<SetStateAction<true | false>> }) => {
     const Navigate = useNavigate();
     const { breakpoints, palette: { common } } = useMUITheme();
+    const role = useSelector((state: RootState) => state.adminProfile.role);
     const mathUpMd = useMediaQuery(breakpoints?.up("lg"));
 
     useEffect(() => {
@@ -81,7 +84,7 @@ const SideDrawer = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Di
 
                 {/* Nav Items */}
                 <List sx={{ flex: 1, py: 1, px: 0.8, overflowY: 'auto', overflowX: 'hidden' }}>
-                    {navigations().filter(item => item.visible).map((value, index) => {
+                    {navigations(role).filter(item => item.visible).map((value, index) => {
                         const active = isActive(value?.isActive);
                         return (
                             <Tooltip

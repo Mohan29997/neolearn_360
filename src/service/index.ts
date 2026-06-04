@@ -7,7 +7,7 @@ export class service {
         return await axiosInstance.post("/auth/login", payload)
     }
     static async getDepartments() {
-        return await axiosInstance.get("/departments")
+        return await axiosInstance.get("/departments", { params: { _t: Date.now() } })
     }
     static async getuserprofile() {
         return await axiosInstance.get("/users/profile")
@@ -22,6 +22,9 @@ export class service {
     static async getRoles() {
         return await axiosInstance.get("/users/roles")
     }
+    static async updateAdminUser(id: string, payload: { employeeId?: string; name?: string; email?: string; password?: string; isActive?: boolean }) {
+        return await axiosInstance.patch(`/users/admins/${id}`, payload)
+    }
     static async getUsers(params: { page?: number; limit?: number; search?: string }) {
         const safeParams = { ...params, limit: Math.min(params.limit ?? 20, 100) };
         return await axiosInstance.get("/users", { params: safeParams })
@@ -29,8 +32,23 @@ export class service {
     static async updateAdminUser(id: string, payload: IUpdateAdminUserPayload) {
         return await axiosInstance.patch(`/users/admins/${id}`, payload)
     }
-    static async createDepartment(payload: { departlist: string[] }) {
+    static async createDepartment(payload: { departlist: { name: string; manager_name: string; employee_id: string }[] }) {
         return await axiosInstance.post('/departments', payload)
+    }
+    static async updateDepartment(id: string, payload: { name: string; manager_name: string; employee_id: string; isActive: boolean }) {
+        return await axiosInstance.patch(`/departments/${id}`, payload)
+    }
+    static async getAdminUsers(params: { page?: number; limit?: number; department?: string; role?: string; status?: string; search?: string }) {
+        return await axiosInstance.get("/users/admins", { params })
+    }
+    static async getBenchUsers(params: { department?: string } = {}) {
+        return await axiosInstance.get("/users", { params: { page: 1, limit: 100, ...params } })
+    }
+    static async updateUserStatus(id: string, status: string) {
+        return await axiosInstance.patch(`/users/${id}/status`, { status })
+    }
+    static async getManagerUsers() {
+        return await axiosInstance.get("/users", { params: { page: 1, limit: 100 } })
     }
     static async getCourses(page: number = 1, limit: number = 10) {
         return await axiosInstance.get(`/courses?page=${page}&limit=${limit}`)

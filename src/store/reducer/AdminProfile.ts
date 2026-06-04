@@ -12,6 +12,7 @@ export interface IUser {
     name: string;
     email: string;
     role: UserRole;
+    department?: string;
     technologies: string[];
     isActive: boolean;
     createdAt: string;
@@ -40,6 +41,7 @@ export const AdminProfile = createSlice({
             state.name = action.payload.name
             state.email = action.payload.email
             state.role = action.payload.role
+            state.department = action.payload.department
             state.technologies = action.payload.technologies
             state.isActive = action.payload.isActive
             state.createdAt = action.payload.createdAt

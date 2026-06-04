@@ -14,4 +14,5 @@ export interface IOnboardUserPayload {
     role: string;
     department: string;
     officeLocation: string;
+    manager_name?: string;
 }

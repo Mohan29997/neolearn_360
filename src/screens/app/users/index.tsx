@@ -3,11 +3,11 @@ import {
     Box, Typography, Button, Select, MenuItem, InputBase,
     Avatar, Chip, IconButton, Modal, FormControl,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Pagination, CircularProgress,
+    Pagination, CircularProgress, OutlinedInput, Switch,
 } from '@mui/material';
 import {
     PersonAddRounded, FileDownloadRounded,
-    EditRounded, MoreVertRounded, SearchRounded, CloseRounded,
+    EditRounded, MoreVertRounded, SearchRounded, CloseRounded, SaveRounded,
 } from '@mui/icons-material';
 import TabTitle from '../../../components/tabtitle';
 import { service } from '../../../service';
@@ -37,6 +37,9 @@ const Users = () => {
     const [allUsers, setAllUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
     const [roles, setRoles] = useState<string[]>([]);
+    const [editUser, setEditUser] = useState<User | null>(null);
+    const [editForm, setEditForm] = useState({ employeeId: '', name: '', email: '', password: '', isActive: true });
+    const [editSubmitting, setEditSubmitting] = useState(false);
 
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const searchRef = useRef('');
@@ -95,6 +98,33 @@ const Users = () => {
     const roleOptions = useMemo(() =>
         roles.length ? roles : [...new Set(allUsers.map(u => u.role).filter(Boolean))] as string[],
         [roles, allUsers]);
+
+    const openEdit = (user: User) => {
+        setEditUser(user);
+        setEditForm({ employeeId: user.employeeId ?? '', name: user.name ?? '', email: user.email ?? '', password: '', isActive: user.isActive });
+    };
+
+    const handleEditSubmit = async () => {
+        if (!editUser) return;
+        if (!editForm.name || !editForm.email) {
+            return;
+        }
+        setEditSubmitting(true);
+        const payload: Record<string, any> = {
+            employeeId: editForm.employeeId,
+            name: editForm.name,
+            email: editForm.email,
+            isActive: editForm.isActive,
+        };
+        if (editForm.password) payload.password = editForm.password;
+        try {
+            await service.updateAdminUser(editUser._id, payload);
+            setEditUser(null);
+            doFetch(searchRef.current);
+        } finally {
+            setEditSubmitting(false);
+        }
+    };
 
     const clearFilters = () => { setDeptFilter(''); setRoleFilter(''); setStatusFilter(''); setSearch(''); };
 
@@ -220,7 +250,7 @@ const Users = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <Box sx={{ display: 'flex', gap: 0.5 }}>
-                                                    <IconButton size="small" sx={{ color: 'grey.500' }}><EditRounded fontSize="small" /></IconButton>
+                                                    <IconButton size="small" sx={{ color: 'grey.500' }} onClick={() => openEdit(user)}><EditRounded fontSize="small" /></IconButton>
                                                     <IconButton size="small" sx={{ color: 'grey.500' }}><MoreVertRounded fontSize="small" /></IconButton>
                                                 </Box>
                                             </TableCell>
@@ -245,6 +275,61 @@ const Users = () => {
                     </Box>
                 </Box>
             </Box>
+
+            {/* Edit User Modal */}
+            <Modal open={!!editUser} onClose={() => setEditUser(null)}>
+                <Box sx={{
+                    position: 'absolute', top: '50%', left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: { xs: '95vw', sm: '480px' },
+                    bgcolor: '#fff', borderRadius: '16px', outline: 'none', p: 3,
+                }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
+                        <Typography variant="h5" fontWeight={700} sx={{ color: 'grey.900' }}>Edit User</Typography>
+                        <IconButton size="small" onClick={() => setEditUser(null)}><CloseRounded /></IconButton>
+                    </Box>
+
+                    {([
+                        { label: 'Employee ID', key: 'employeeId', placeholder: 'e.g. NADM001' },
+                        { label: 'Full Name', key: 'name', placeholder: 'Enter full name' },
+                        { label: 'Email', key: 'email', placeholder: 'Enter email' },
+                        { label: 'New Password', key: 'password', placeholder: 'Leave blank to keep unchanged', type: 'password' },
+                    ] as const).map(({ label, key, placeholder, type }) => (
+                        <Box key={key} sx={{ mb: 2 }}>
+                            <Typography sx={{ fontSize: 12, fontWeight: 600, color: 'grey.600', mb: 0.5 }}>{label}</Typography>
+                            <OutlinedInput
+                                fullWidth size="small" type={type ?? 'text'} placeholder={placeholder}
+                                value={editForm[key]}
+                                onChange={e => setEditForm(f => ({ ...f, [key]: e.target.value }))}
+                                sx={{ fontSize: 13, borderRadius: '8px' }}
+                            />
+                        </Box>
+                    ))}
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                        <Typography sx={{ fontSize: 13, fontWeight: 600, color: 'grey.700' }}>Active Status</Typography>
+                        <Switch
+                            checked={editForm.isActive}
+                            onChange={e => setEditForm(f => ({ ...f, isActive: e.target.checked }))}
+                            sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': { color: BRAND_RED },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { bgcolor: BRAND_RED },
+                            }}
+                        />
+                    </Box>
+
+                    <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'flex-end' }}>
+                        <Button onClick={() => setEditUser(null)}
+                            sx={{ textTransform: 'none', color: 'grey.600', borderRadius: '8px' }}>
+                            Cancel
+                        </Button>
+                        <Button variant="contained" startIcon={<SaveRounded />} disabled={editSubmitting} onClick={handleEditSubmit}
+                            sx={{ textTransform: 'none', bgcolor: BRAND_RED, borderRadius: '8px', '&:hover': { bgcolor: '#a01828' } }}>
+                            {editSubmitting ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
 
             {/* Add User Modal */}
             <Modal open={modalOpen} onClose={() => setModalOpen(false)}>

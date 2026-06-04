@@ -1,20 +1,36 @@
 import { type Dispatch, Fragment, type SetStateAction } from 'react'
-import { AppBar, useMediaQuery, Box, Typography, IconButton, InputBase } from '@mui/material'
+import { AppBar, useMediaQuery, Box, IconButton, InputBase, Avatar, Typography, Tooltip } from '@mui/material'
 import {
     MenuOpenRounded,
     SearchRounded,
     NotificationsNoneRounded,
     HelpOutlineRounded,
     AppsRounded,
+    LogoutRounded,
 } from '@mui/icons-material';
 import { useMUITheme } from '../../hooks/useMUITheme';
+import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../hooks/useAppSelector';
-import UserSection from './usersection';
+import { StorageManager } from '../../storagemanager';
+import { setIsLogin } from '../../store/reducer/AuthHelper';
+import { resetProfile } from '../../store/reducer/AdminProfile';
 
 const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dispatch<SetStateAction<true | false>> }) => {
     const { breakpoints, palette: { common, text, error } } = useMUITheme();
     const mathUpMd = useMediaQuery(breakpoints?.up("lg"));
-    const profile = useAppSelector((state) => state?.adminProfile);
+    const dispatch = useDispatch();
+    const profile = useAppSelector((state) => state.adminProfile);
+
+    const initials = profile?.name
+        ? profile.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+        : 'A';
+
+    const handleLogout = () => {
+        StorageManager.removeItems();
+        sessionStorage.clear();
+        dispatch(setIsLogin({ isLogin: false }));
+        dispatch(resetProfile());
+    };
 
     return (
         <Fragment>
@@ -56,7 +72,7 @@ const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dis
                         </Box>
                     </Box>
 
-                    {/* Right: icons + user */}
+                    {/* Right: icons + user + logout */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <IconButton size="small">
                             <NotificationsNoneRounded fontSize="small" sx={{ color: text.secondary }} />
@@ -68,16 +84,36 @@ const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dis
                             <AppsRounded fontSize="small" sx={{ color: text.secondary }} />
                         </IconButton>
 
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1, cursor: 'pointer' }}>
-                            <Box sx={{ textAlign: 'right' }}>
-                                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '13px', color: text.primary, lineHeight: 1.3 }}>
+                        {/* User info */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1, pl: 1.5, borderLeft: '1px solid rgba(0,0,0,0.08)' }}>
+                            <Avatar sx={{ width: 34, height: 34, bgcolor: '#8B1A2E', fontSize: '12px', fontWeight: 700 }}>
+                                {initials}
+                            </Avatar>
+                            <Box sx={{ textAlign: 'left' }}>
+                                <Typography sx={{ fontWeight: 600, fontSize: '13px', color: text.primary, lineHeight: 1.3 }}>
                                     {profile?.name || 'Admin User'}
                                 </Typography>
-                                <Typography variant="caption" sx={{ fontSize: '10px', color: error.dark, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    {profile?.role?.replace('_', ' ') || 'System Architect'}
+                                <Typography sx={{ fontSize: '10px', color: error.dark, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                    {profile?.role?.replace(/_/g, ' ') || 'System Architect'}
                                 </Typography>
                             </Box>
-                            <UserSection />
+                            <Tooltip title="Logout" arrow>
+                                <IconButton
+                                    size="small"
+                                    onClick={handleLogout}
+                                    sx={{
+                                        ml: 0.5,
+                                        color: error.main,
+                                        border: '1px solid',
+                                        borderColor: 'rgba(211,47,47,0.25)',
+                                        borderRadius: '8px',
+                                        p: '5px',
+                                        '&:hover': { bgcolor: '#FFF1F2', borderColor: error.main },
+                                    }}
+                                >
+                                    <LogoutRounded sx={{ fontSize: 16 }} />
+                                </IconButton>
+                            </Tooltip>
                         </Box>
                     </Box>
                 </Box>

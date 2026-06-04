@@ -16,6 +16,8 @@ interface Department {
     _id: string;
     name: string;
     description: string;
+    managerName?: string;
+    employeeId?: string;
     isActive: boolean;
     createdAt: string;
 }
@@ -31,8 +33,12 @@ const Departments = () => {
     const fetchDepartments = useCallback(() => {
         setLoading(true);
         service.getDepartments()
-            .then((res: any) => setDepartments(res?.data ?? []))
-            .catch(() => setDepartments([]))
+            .then((res: any) => {
+                const raw = res?.data;
+                const list = Array.isArray(raw) ? raw : (raw?.departments ?? raw?.data ?? []);
+                setDepartments(list);
+            })
+            .catch(() => {})
             .finally(() => setLoading(false));
     }, []);
 
@@ -82,7 +88,7 @@ const Departments = () => {
                         <Table>
                             <TableHead>
                                 <TableRow sx={{ background: '#F9FAFB' }}>
-                                    {['DEPARTMENT', 'DESCRIPTION', 'STATUS', 'CREATED AT', 'ACTIONS'].map(h => (
+                                    {['DEPARTMENT', 'DESCRIPTION', 'MANAGER', 'STATUS', 'CREATED AT', 'ACTIONS'].map(h => (
                                         <TableCell key={h} sx={{ fontSize: 11, fontWeight: 700, color: 'grey.500', letterSpacing: '0.5px', py: 1.5 }}>{h}</TableCell>
                                     ))}
                                 </TableRow>
@@ -90,13 +96,13 @@ const Departments = () => {
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
                                             <CircularProgress size={28} sx={{ color: BRAND_RED }} />
                                         </TableCell>
                                     </TableRow>
                                 ) : paginated.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} align="center" sx={{ py: 6, color: 'grey.400', fontSize: 13 }}>
+                                        <TableCell colSpan={6} align="center" sx={{ py: 6, color: 'grey.400', fontSize: 13 }}>
                                             No departments found
                                         </TableCell>
                                     </TableRow>
@@ -112,6 +118,9 @@ const Departments = () => {
                                         </TableCell>
                                         <TableCell>
                                             <Typography sx={{ fontSize: 13, color: 'grey.600' }}>{dept.description || '—'}</Typography>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Typography sx={{ fontSize: 13, color: 'grey.700', fontWeight: 500 }}>{dept.managerName || '—'}</Typography>
                                         </TableCell>
                                         <TableCell>
                                             <Chip
