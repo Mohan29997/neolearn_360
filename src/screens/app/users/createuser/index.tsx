@@ -212,6 +212,7 @@ const CreateUser = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [cities, setCities] = useState<string[]>([]);
     const [roles, setRoles] = useState<string[]>([]);
+    const [departments, setDepartments] = useState<string[]>([]);
 
     useEffect(() => {
         service.getCities().then((res: any) => {
@@ -222,6 +223,10 @@ const CreateUser = () => {
             const data = res?.data ?? res
             setRoles(Array.isArray(data) ? data : [])
         }).catch(() => setRoles([]))
+        service.getDepartments().then((res: any) => {
+            const list = res?.data ?? [];
+            setDepartments(list.map((d: any) => d.name));
+        }).catch(() => setDepartments([]))
     }, []);
 
     const [form, setForm] = useState({
@@ -410,11 +415,9 @@ const CreateUser = () => {
                                     sx={selectBase}
                                     renderValue={v => v || <Typography sx={{ color: 'grey.400', fontSize: '13.5px' }}>Select department</Typography>}
                                 >
-                                    <MenuItem value="engineering">Engineering</MenuItem>
-                                    <MenuItem value="product">Product</MenuItem>
-                                    <MenuItem value="design">Design</MenuItem>
-                                    <MenuItem value="hr">Human Resources</MenuItem>
-                                    <MenuItem value="finance">Finance</MenuItem>
+                                    {departments.map(d => (
+                                        <MenuItem key={d} value={d}>{d}</MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
                         </Box>

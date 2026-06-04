@@ -6,6 +6,9 @@ export class service {
     static async userlogin(payload: ILoginPayload) {
         return await axiosInstance.post("/auth/login", payload)
     }
+    static async getDepartments() {
+        return await axiosInstance.get("/departments")
+    }
     static async getuserprofile() {
         return await axiosInstance.get("/users/profile")
     }

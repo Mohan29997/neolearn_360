@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import {
     Box, Typography, Button, Select, MenuItem, FormControl,
     InputBase, Avatar, Switch, LinearProgress,
@@ -9,6 +9,7 @@ import {
     EditRounded, SaveRounded, PersonRounded,
 } from '@mui/icons-material';
 import TabTitle from '../../../../components/tabtitle';
+import { service } from '../../../../service';
 import {
     BRAND_RED, BRAND_DARK,
     breadcrumbRow, twoColLayout, formCard, previewCard,
@@ -21,8 +22,16 @@ const FieldLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 const CreateDepartment = () => {
+    const [departments, setDepartments] = useState<string[]>([]);
     const [departmentName, setDepartmentName] = useState('');
     const [headOfDepartment, setHeadOfDepartment] = useState('');
+
+    useEffect(() => {
+        service.getDepartments().then((res: any) => {
+            const list = res?.data ?? [];
+            setDepartments(list.map((d: any) => d.name));
+        }).catch(() => {});
+    }, []);
     const [globalVisibility, setGlobalVisibility] = useState(true);
     const filledCount = [
         departmentName !== '',
@@ -31,9 +40,7 @@ const CreateDepartment = () => {
     ].filter(Boolean).length;
     const progress = Math.round((filledCount / 3) * 100);
 
-    const headLabel = headOfDepartment
-        ? headOfDepartment.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')
-        : 'Unassigned';
+    const headLabel = headOfDepartment || 'Unassigned';
 
     return (
         <Fragment>
@@ -87,14 +94,13 @@ const CreateDepartment = () => {
                                             onChange={e => setHeadOfDepartment(e.target.value)}
                                             sx={selectBase}
                                             renderValue={v => v
-                                                ? v.split('-').map((w: string) => w[0].toUpperCase() + w.slice(1)).join(' ')
-                                                : <Typography sx={{ color: 'grey.400', fontSize: '13.5px' }}>Select Leader</Typography>
+                                                ? v
+                                                : <Typography sx={{ color: 'grey.400', fontSize: '13.5px' }}>Select Department</Typography>
                                             }
                                         >
-                                            <MenuItem value="elena-vance">Elena Vance</MenuItem>
-                                            <MenuItem value="mark-scout">Mark Scout</MenuItem>
-                                            <MenuItem value="alex-rivera">Alex Rivera</MenuItem>
-                                            <MenuItem value="jordan-hayes">Jordan Hayes</MenuItem>
+                                            {departments.map(dept => (
+                                                <MenuItem key={dept} value={dept}>{dept}</MenuItem>
+                                            ))}
                                         </Select>
                                     </FormControl>
                                 </Box>
