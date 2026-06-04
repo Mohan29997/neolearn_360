@@ -13,7 +13,7 @@ export const MuiPaper = (theme: Theme): Components["MuiPaper"] => {
             root: {
                 width: '100%',
                 boxShadow: customShadow?.paper,
-                border: `1px solid ${palette?.divider}`,
+                border: `1px solid ${palette?.error.light}`,
                 backdropFilter: "blur(20px)",
                 backgroundColor: palette?.common?.white,
                 backgroundImage: `url(${cyanBlur}), url(${redBlur})`,

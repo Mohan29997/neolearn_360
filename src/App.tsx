@@ -41,7 +41,7 @@ function App() {
   return (
     <Fragment>
       <GlobalStyles theme={theme} />
-      {!isLogin ?
+      {isLogin ?
         <AppNavigation />
         :
         <AuthNavigation />

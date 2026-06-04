@@ -4,7 +4,7 @@ import cyanBlur from './cyan-blur.png';
 import nodata from './nodata.jpg';
 import nonotification from './nonotification.jpg';
 import redBlur from './red-blur.png';
-import blooddonationbg from './blooddonationbg.jpg';
+import loginBg from './technologyhologramillustrated.jpg';
 
 export {
     not_f_image,
@@ -13,5 +13,5 @@ export {
     nodata,
     nonotification,
     redBlur,
-    blooddonationbg,
+    loginBg,
 }
