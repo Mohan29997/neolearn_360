@@ -64,19 +64,18 @@ export const AXIOS = () => {
                         originalRequest.headers['Authorization'] = `Bearer ${_accessToken}`;
                         return API(originalRequest);
                     } else {
-                        LOCATIONUPDATE();
+
                     }
                 } catch (error) {
                     console.log("token.error", error);
-                    LOCATIONUPDATE();
                 }
             } else {
-                LOCATIONUPDATE();
+
             }
         } else if (error?.response?.status === 400) {
             return SnackNotification(error?.response?.data?.message || "Sorry we are not able to process your request. Please try again", "error")
         } else if (error?.response?.status === 403) {
-            return LOCATIONUPDATE()
+
         } else if (error?.response?.status === 404) {
             return SnackNotification(error?.response?.data?.message || "Sorry we are not able to process your request. Please try again", "error")
         } else if (error?.response?.status === 405) {
@@ -111,31 +110,4 @@ const APIRETRY = async (API: AxiosInstance, error: AxiosError<any, any>) => {
     } else {
         return SnackNotification(error?.response?.data?.message || error?.message || "Sorry we are not able to process your request. Please try again", "error")
     }
-}
-
-const LOCATIONUPDATE = async () => {
-    let data = JSON.stringify({
-        admin: {
-            location: {
-                "latitude": store?.getState()?.authHelper.location?.latitude as string,
-                "longitude": store?.getState()?.authHelper?.location?.longitude as string,
-            },
-            isOnline: false,
-        }
-    });
-    let config = {
-        method: 'patch',
-        url: `${baseURL}/admin/update/location/by/${store.getState()?.adminProfile?._currentUser}`,
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        data: data
-    };
-    await axiosInstance.request(config)
-        .then(() => { })
-        .catch(() => { })
-        .finally(() => {
-            store.dispatch(setIsLogin({ isLogin: false }));
-            StorageManager.appLogout()
-        });
 }
