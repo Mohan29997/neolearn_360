@@ -1,5 +1,5 @@
 import { axiosInstance } from "./api";
-import type { ILoginPayload, IOnboardUserPayload } from "./service";
+import type { ILoginPayload, IOnboardUserPayload, IUpdateAdminUserPayload } from "./service";
 
 export class service {
     /** user login */
@@ -21,5 +21,15 @@ export class service {
     }
     static async getRoles() {
         return await axiosInstance.get("/users/roles")
+    }
+    static async getUsers(params: { page?: number; limit?: number; search?: string }) {
+        const safeParams = { ...params, limit: Math.min(params.limit ?? 20, 100) };
+        return await axiosInstance.get("/users", { params: safeParams })
+    }
+    static async updateAdminUser(id: string, payload: IUpdateAdminUserPayload) {
+        return await axiosInstance.patch(`/users/admins/${id}`, payload)
+    }
+    static async createDepartment(payload: { departlist: string[] }) {
+        return await axiosInstance.post('/departments', payload)
     }
 }

@@ -1,6 +1,9 @@
-export interface ILoginPayload {
-    "username": string;
-    "password": string;
+export interface IUpdateAdminUserPayload {
+    employeeId?: string;
+    name?: string;
+    email?: string;
+    password?: string;
+    isActive?: boolean;
 }
 
 export interface IOnboardUserPayload {

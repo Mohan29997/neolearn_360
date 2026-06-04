@@ -32,7 +32,7 @@ const AdminLogin = () => {
     }
 
     const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.replace(/\s/g, '')
+        const value = e.target.value.replace(/\s|@/g, '')
         setEmailUsername(value)
         setInputValue(prev => ({ ...prev, username: value ? `${value}@${emailDomain}` : '' }))
     }
