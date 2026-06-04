@@ -4,15 +4,24 @@ import { Box, Container, LinearProgress, Typography } from '@mui/material';
 import { service } from '../../service';
 import { useAppDispatch } from '../../hooks/useAppDispatch';
 import { useMUITheme } from '../../hooks/useMUITheme';
+import { setProfile } from '../../store/reducer/AdminProfile';
 
 const AppUtils = <P extends object>(ConsumerComponent: ComponentType<P>) => {
     const WrappedComponent: React.FC<P> = (props) => {
         const { palette } = useMUITheme();
-        const [isLoading, setIsLoading] = useState<boolean>(false);
+        const dispatch = useAppDispatch();
+        const [isLoading, setIsLoading] = useState<boolean>(true);
 
         useLayoutEffect(() => {
             (async () => {
-                    
+                service.getuserprofile()
+                    .then((response) => {
+                        if (response.status === 200) {
+                            dispatch(setProfile(response.data))
+                        }
+                    })
+                    .catch(() => { })
+                    .finally(() => { setIsLoading(false) })
             })()
         }, []);
 

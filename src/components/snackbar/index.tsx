@@ -41,7 +41,7 @@ export default function SnackBar(key: SnackbarKey, message: SnackbarMessage, var
       <Box onClick={() => closeSnackbar(key)} sx={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', gap: "10px" }}>
           {notificationIcon()}
-          <Typography variant="caption" color={common.white}>{message}</Typography>
+          <Typography variant="caption" sx={{color: common.white }}>{message}</Typography>
         </Box>
           <CloseRounded sx={{ fontSize: "18px", color: common.white}} />
       </Box>

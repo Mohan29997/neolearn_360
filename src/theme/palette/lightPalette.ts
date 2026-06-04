@@ -29,9 +29,9 @@ export const lightPalette: PaletteOptions = {
         contrastText: "#fff",
     },
     error: {
-        light: "#8A4848",
-        main: "#8A2C2C",
-        dark: "#8A0303",
+        light: "#FF888D",
+        main: "#C41E3A",
+        dark: "#40000A",
         contrastText: "#fff",
     },
     warning: {

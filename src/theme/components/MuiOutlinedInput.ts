@@ -14,11 +14,11 @@ export const MuiOutlinedInput = (theme: Theme): Components["MuiOutlinedInput"] =
                          transition: 'ease-in 0.2s',
                     },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                         border: `2px solid ${palette?.primary?.main}`,
+                         border: `2px solid ${palette?.error?.main}`,
                          transition: 'ease-in 0.2s',
                     },
                     '&:hover .MuiOutlinedInput-notchedOutline': {
-                         border: `2px solid ${palette?.primary?.light}`,
+                         border: `2px solid ${palette?.error?.light}`,
                          transition: 'ease-in 0.2s',
                     },
                     '&.MuiInputBase-multiline': {
@@ -52,13 +52,6 @@ export const MuiOutlinedInput = (theme: Theme): Components["MuiOutlinedInput"] =
                          fontStyle: 'normal',
                          opacity: 0.6
                     },
-               },
-               /** ✅ MULTILINE PADDING */
-               inputMultiline: {
-                    padding: '10px 10px',
-               },
-               inputAdornedStart: {
-                    paddingLeft: 4
                },
                notchedOutline: {
                     borderRadius: shape?.borderRadius

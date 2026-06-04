@@ -4,8 +4,7 @@ import { SnackNotification } from '../helper/snackMessage';
 import { store } from '../store';
 import { setIsLogin } from '../store/reducer/AuthHelper';
 
-// export const baseURL: string = "http://localhost:8080/api/v1";
-export const baseURL: string = "https://sphereblood-server.vercel.app/api/v1";
+export const baseURL: string = "http://10.0.28.128:3000/api/v1";
 export const AXIOS = () => {
     const API: AxiosInstance = axiosNative.create({
         baseURL: baseURL,
@@ -34,7 +33,7 @@ export const AXIOS = () => {
     API.interceptors.response.use((response: AxiosResponse): AxiosResponse => {
 
         const modifiedResponse: AxiosResponse<any, any> = {
-            data: response.data,
+            data: response.data.data,
             status: response.status,
             statusText: response.statusText,
             headers: response.headers,
@@ -52,19 +51,19 @@ export const AXIOS = () => {
                 try {
                     originalRequest._retry = true;
                     const _refreshToken = await StorageManager.getRefreshToken();
-                    const response = await axiosNative.post(`${baseURL}/admin/admin/auth/refresh/token`, {
-                        _refreshToken: _refreshToken,
+                    const response = await axiosNative.post(`${baseURL}/auth/refresh-token`, {
+                        refreshToken: _refreshToken,
                     });
 
                     if (response.status === 201 && response.data) {
-                        const { _accessToken, _refreshToken } = response.data;
-                        StorageManager.setAccessToken(_accessToken);
-                        StorageManager.setRefreshToken(_refreshToken);
-                        API.defaults.headers.common['Authorization'] = `Bearer ${_accessToken}`;
-                        originalRequest.headers['Authorization'] = `Bearer ${_accessToken}`;
+                        StorageManager.setAccessToken(response.data?.accessToken);
+                        StorageManager.setRefreshToken(response.data?.refreshToken);
+                        API.defaults.headers.common['Authorization'] = `Bearer ${response.data?.accessToken}`;
+                        originalRequest.headers['Authorization'] = `Bearer ${response.data?.accessToken}`;
                         return API(originalRequest);
                     } else {
-
+                        store.dispatch(setIsLogin({ isLogin: false }))
+                        StorageManager.caller();
                     }
                 } catch (error) {
                     console.log("token.error", error);

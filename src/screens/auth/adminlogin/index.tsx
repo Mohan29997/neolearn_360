@@ -1,34 +1,52 @@
 import React, { Fragment, useState, } from 'react'
-import { Box, Button, FormControl, InputLabel, OutlinedInput, Paper, Typography, } from '@mui/material'
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, FormControl, IconButton, InputLabel, OutlinedInput, Paper, Typography, } from '@mui/material';
+import { VisibilityRounded, VisibilityOffRounded } from '@mui/icons-material';
 import TabTitle from '../../../components/tabtitle'
-import { blooddonationbg } from '../../../assets/images';
+import { loginBg } from '../../../assets/images';
 import { MessageIocnSvg } from '../../../assets/svg'
 import { useMUITheme } from '../../../hooks/useMUITheme'
 import { SnackNotification } from '../../../helper/snackMessage';
+import type { ILoginPayload } from '../../../service/service';
+import { service } from '../../../service';
+import { useDispatch } from 'react-redux';
+import { setIsLogin } from '../../../store/reducer/AuthHelper';
+import { StorageManager } from '../../../storagemanager';
 
 const AdminLogin = () => {
     const { palette } = useMUITheme();
-    const navigation = useNavigate();
+    const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState<true | false>(false)
-    const [inputValue, setInputValue] = useState({
-        mobile: '',
+    const [isVisble, setIsVisble] = useState<true | false>(false)
+    const [inputValue, setInputValue] = useState<ILoginPayload>({
+        username: "",
+        password: ""
     });
 
     const onSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (isLoading) return
-        if (!inputValue.mobile) return SnackNotification("Enter Mobile Number.", 'error')
+        if (!inputValue.username) return SnackNotification("Please enter usernmae.", 'error')
+        if (!inputValue.password) return SnackNotification("Please enter password.", 'error')
         setIsLoading(true)
-        
+        service.userlogin(inputValue)
+            .then((response) => {
+                if (response.status === 200) {
+                    StorageManager.setAccessToken(response.data?.accessToken);
+                    StorageManager.setRefreshToken(response.data?.refreshToken);
+                    dispatch(setIsLogin({ isLogin: true }));
+                }
+            })
+            .catch(() => { })
+            .finally(() => { setIsLoading(false) })
+
     };
 
     return (
         <Fragment>
-            <TabTitle title='Admin Login' />
+            <TabTitle title='Neo Learn 360 - Login' />
             <Box
                 sx={{
-                    backgroundImage: `url(${blooddonationbg})`,
+                    backgroundImage: `url(${loginBg})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     height: '100vh',
@@ -54,28 +72,46 @@ const AdminLogin = () => {
                 >
                     <MessageIocnSvg />
                     <Box sx={{ gap: 1, display: "flex", flexDirection: "column" }}>
-                        <Typography variant='h5' color={palette.success.light}>
-                            Secure access for administrators. Enter your mobile number to receive an OTP.
-                        </Typography>
-                        <Typography variant='h6' color={palette.grey[300]}>
-                            Stay protected. Verify your mobile number to continue to the dashboard.
+                        <Typography variant='h5' align="center" sx={{ color: palette.success.light }}>
+                            Secure access for administrators. Enter your username and password.
                         </Typography>
                     </Box>
                     <FormControl fullWidth>
-                        <InputLabel htmlFor='outlined-adornment-mobile-number'>
-                            Enter Mobile Number
+                        <InputLabel htmlFor='outlined-adornment-username'>
+                            Enter username
                         </InputLabel>
                         <OutlinedInput
                             fullWidth
-                            placeholder='Enter Mobile Number'
-                            value={inputValue.mobile}
-                            name='mobile'
+                            placeholder='Enter username'
+                            value={inputValue.username}
+                            name="username"
                             onChange={(event) => { setInputValue({ ...inputValue, [event.target.name]: event.target.value }) }}
                             onInput={(e: any) => {
-                                const target = e.target as HTMLInputElement
-                                target.value = target.value.replace(/[^0-9]/g, '')
+                                const target = e.target as HTMLInputElement;
+                                target.value = target.value.replace(/\s/g, '');
                             }}
-                            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*', maxLength: 10 }}
+                            inputProps={{ inputMode: "email", maxLength: 50 }}
+                        />
+                    </FormControl>
+                    <FormControl fullWidth>
+                        <InputLabel htmlFor='outlined-adornment-password'>
+                            Password
+                        </InputLabel>
+                        <OutlinedInput
+                            fullWidth
+                            placeholder='Enter password.'
+                            type={isVisble ? "text" : "password"}
+                            value={inputValue.password}
+                            name="password"
+                            onChange={(event) => { setInputValue({ ...inputValue, [event.target.name]: event.target.value }) }}
+                            onInput={(e: any) => {
+                                const target = e.target as HTMLInputElement;
+                                target.value = target.value.replace(/\s/g, '');
+                            }}
+                            inputProps={{ inputMode: "text", maxLength: 50 }}
+                            endAdornment={<IconButton onClick={() => { setIsVisble(!isVisble) }}>
+                                {isVisble ? <VisibilityRounded /> : <VisibilityOffRounded />}
+                            </IconButton>}
                         />
                     </FormControl>
 
@@ -84,9 +120,10 @@ const AdminLogin = () => {
                         size='large'
                         fullWidth
                         type="submit"
+                        loadingPosition="center"
                         loading={isLoading}
                     >
-                        Send OTP
+                        {!isLoading && "Log In"}
                     </Button>
                 </Paper>
             </Box>
