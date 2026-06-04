@@ -4,9 +4,13 @@ import { ChevronRightRounded } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useMUITheme } from '../../hooks/useMUITheme';
 import { navigations } from './navigations';
+import type { RootState } from '../../store';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { hexToRgbColor } from '../../utils/hexToRgbColor';
 
 const SideDrawer = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dispatch<SetStateAction<true | false>> }) => {
     const Navigate = useNavigate();
+    const { name, role } = useAppSelector((state: RootState) => state.adminProfile);
     const { breakpoints, palette: { primary, success, text, error } } = useMUITheme();
     const mathUpMd = useMediaQuery(breakpoints?.up("lg"));
 
@@ -44,6 +48,10 @@ const SideDrawer = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Di
                         boxShadow: 'none',
                         overflowY: 'hidden',
                         overflowX: 'hidden',
+
+                        borderRightWidth: 1,
+                        borderRightStyle: "solid",
+                        borderRightColor: hexToRgbColor(error.light, .5)
                     },
                 }}
             >
@@ -110,12 +118,25 @@ const SideDrawer = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Di
 
                 </Box>
 
-                <Box onClick={() => {  }} sx={{ cursor: "pointer", height: 80, paddingInline: 1, display: "flex", alignItems: "center", gap: 1 }}>
+                <Box
+                    onClick={() => { }}
+                    sx={{
+                        cursor: "pointer",
+                        height: 80,
+                        paddingInline: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        borderTopWidth: 1,
+                        borderTopStyle: "solid",
+                        borderTopColor: hexToRgbColor(error.light, .5)
+
+                    }}>
                     <Avatar src={'/image.png'} alt={"GB"} />
                     {isOpen &&
                         <Box>
-                            <Typography variant='h5' color="primary" sx={{ color: primary.dark }}>{"Govinda Biswas"}</Typography>
-                            <Typography variant='h6' sx={{ color: success.dark }}>{"DM"}</Typography>
+                            <Typography variant='h5' color="primary" sx={{ color: primary.dark }}>{name}</Typography>
+                            <Typography variant='h6' sx={{ color: success.dark }}>{role}</Typography>
                         </Box>
                     }
                 </Box>

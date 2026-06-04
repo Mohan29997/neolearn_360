@@ -3,9 +3,10 @@ import { AppBar, useMediaQuery, Box, Typography, IconButton } from '@mui/materia
 import UserSection from './usersection';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 import { useMUITheme } from '../../hooks/useMUITheme';
+import { hexToRgbColor } from '../../utils/hexToRgbColor';
 
 const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dispatch<SetStateAction<true | false>> }) => {
-    const { breakpoints, palette: { common, text } } = useMUITheme();
+    const { breakpoints, palette: { common, text, error } } = useMUITheme();
     const mathUpMd = useMediaQuery(breakpoints?.up("lg"));
 
     return (
@@ -14,12 +15,15 @@ const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dis
                 elevation={0}
                 sx={{
                     width: `calc(100% - ${mathUpMd ? isOpen ? "240px" : "60px" : "0px"})`,
-                    backgroundColor: common.white, 
-                    border: "none", 
-                    height: 60, 
-                    transition: "ease-in-out  0.2s", 
+                    backgroundColor: common.white,
+                    border: "none",
+                    height: 60,
+                    transition: "ease-in-out  0.2s",
                     left: mathUpMd ? isOpen ? 240 : 60 : 0,
-                    justifyContent: "center"
+                    justifyContent: "center",
+                    borderBottomWidth: 1,
+                    borderBottomStyle: "solid",
+                    borderBottomColor: hexToRgbColor(error.light, .5)
                 }}
             >
                 <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
@@ -27,9 +31,9 @@ const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dis
                         <MenuOpenRoundedIcon fontSize="medium" sx={{ color: text?.primary, transition: "ease-in-out 0.4s", transform: `rotate(${isOpen ? "0deg" : "180deg"})` }} />
                     </IconButton>
                     <Typography></Typography>
-                    {/* <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", }}>
+                    <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", }}>
                         <UserSection />
-                    </Box> */}
+                    </Box>
                 </Box>
             </AppBar>
         </Fragment>
