@@ -32,4 +32,13 @@ export class service {
     static async createDepartment(payload: { departlist: string[] }) {
         return await axiosInstance.post('/departments', payload)
     }
+    static async getCourses(page: number = 1, limit: number = 10) {
+        return await axiosInstance.get(`/courses?page=${page}&limit=${limit}`)
+    }
+    static async deleteCourse(id: string) {
+        return await axiosInstance.delete(`/courses/${id}`)
+    }
+    static async addCourse(payload: any) {
+        return await axiosInstance.post("/courses", payload)
+    }
 }

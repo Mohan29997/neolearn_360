@@ -1,14 +1,14 @@
-import React from "react";
 import {
-    DashboardRounded,
-    PeopleRounded,
     CorporateFareRounded,
+    DashboardRounded,
     MenuBookRounded,
-    SchoolRounded,
-    RouteRounded,
-    SettingsRounded,
+    PeopleRounded,
     PersonAddAlt1Rounded,
+    RouteRounded,
+    SchoolRounded,
+    SettingsRounded
 } from "@mui/icons-material";
+import React from "react";
 import { appnavigationpath } from "../../navigation/appnavigation/apppath";
 
 export const navigations = (): { _id: number, visible: true | false, isActive?: string[], navigator: string, name: string, icon: (color: string) => React.JSX.Element }[] => {
@@ -77,5 +77,13 @@ export const navigations = (): { _id: number, visible: true | false, isActive?: 
             name: "Settings",
             icon: (color: string) => <SettingsRounded fontSize="small" sx={{ color }} />
         },
+        // {
+        //     _id: 2,
+        //     visible: true,
+        //     isActive: [appnavigationpath.lndcourses],
+        //     navigator: appnavigationpath.lndcourses,
+        //     name: "L&D Courses",
+        //     icon: (color: string) => { return <MenuBookRounded fontSize="small" sx={{ color: color }} /> }
+        // }
     ]
 }

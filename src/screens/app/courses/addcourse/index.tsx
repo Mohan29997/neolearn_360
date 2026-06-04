@@ -1,20 +1,34 @@
-import { Fragment, useState } from 'react';
 import {
-    Box, Typography, Button, Select, MenuItem, FormControl,
-    InputBase, Switch,
-} from '@mui/material';
-import {
-    ChevronRightRounded, LinkRounded, AddRounded,
-    CloudUploadRounded, CheckCircleOutlineRounded,
-    AccessTimeRounded, DescriptionRounded,
-    VerifiedRounded, DownloadRounded,
+    AccessTimeRounded,
+    AddRounded,
+    DescriptionRounded,
+    LinkRounded
 } from '@mui/icons-material';
-import TabTitle from '../../../../components/tabtitle';
 import {
-    BRAND_RED, BRAND_DARK,
-    breadcrumbRow, heroBanner, heroBannerOverlay, twoColLayout,
-    formCard, sideCard, fieldRow, fieldLabelSx, inputBase, selectBase,
-    textareaBase, certCard, switchSx, promoCard, bulkUploadCard, actionRow,
+    Box,
+    Button,
+    CircularProgress,
+    FormControl,
+    InputBase,
+    MenuItem,
+    Select,
+    Typography
+} from '@mui/material';
+import { Fragment, useState } from 'react';
+import TabTitle from '../../../../components/tabtitle';
+import { service } from '../../../../service';
+import {
+    actionRow,
+    BRAND_DARK,
+    BRAND_RED,
+    fieldLabelSx,
+    fieldRow,
+    formCard,
+    heroBanner, heroBannerOverlay,
+    inputBase, selectBase,
+    sideCard,
+    textareaBase,
+    twoColLayout
 } from './styles';
 
 const FieldLabel = ({ children }: { children: React.ReactNode }) => (
@@ -39,7 +53,7 @@ const GUIDELINES = [
     },
 ];
 
-const AddCourse = () => {
+const AddCourse = ({ onClose }: { onClose?: () => void }) => {
     const [form, setForm] = useState({
         title: '',
         provider: '',
@@ -50,9 +64,30 @@ const AddCourse = () => {
         description: '',
     });
     const [certRequired, setCertRequired] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
         setForm(f => ({ ...f, [key]: e.target.value }));
+
+    const handleAddCourse = async () => {
+        try {
+            setIsLoading(true);
+            const payload = {
+                course_title: form.title,
+                provider: form.provider,
+                course_url: form.courseUrl,
+                duration_hours: Number(form.duration) || 0,
+                description: form.description,
+                level: form.level.toLowerCase()
+            };
+            await service.addCourse(payload);
+            if (onClose) onClose();
+        } catch (error) {
+            console.error("Error adding course:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <Fragment>
@@ -60,13 +95,13 @@ const AddCourse = () => {
             <Box sx={{ width: '100%' }}>
 
                 {/* Breadcrumb */}
-                <Box sx={breadcrumbRow}>
+                {/* <Box sx={breadcrumbRow}>
                     <Typography variant="subtitle2" sx={{ color: 'grey.500' }}>Courses</Typography>
                     <ChevronRightRounded sx={{ fontSize: 14, color: 'grey.400' }} />
                     <Typography variant="subtitle2" sx={{ color: BRAND_RED, fontWeight: 700 }}>
                         Add New Course
                     </Typography>
-                </Box>
+                </Box> */}
 
                 {/* Hero Banner */}
                 <Box sx={heroBanner}>
@@ -114,7 +149,7 @@ const AddCourse = () => {
 
                             {/* Row 2: Technology + URL */}
                             <Box sx={fieldRow}>
-                                <Box>
+                                {/* <Box>
                                     <FieldLabel>Technology</FieldLabel>
                                     <FormControl fullWidth size="small">
                                         <Select value={form.technology}
@@ -128,7 +163,7 @@ const AddCourse = () => {
                                             <MenuItem value="Project Management">Project Management</MenuItem>
                                         </Select>
                                     </FormControl>
-                                </Box>
+                                </Box> */}
                                 <Box>
                                     <FieldLabel>Course URL</FieldLabel>
                                     <Box sx={inputBase}>
@@ -138,10 +173,6 @@ const AddCourse = () => {
                                             sx={{ fontSize: '13.5px', color: 'grey.800' }} />
                                     </Box>
                                 </Box>
-                            </Box>
-
-                            {/* Row 3: Duration + Level */}
-                            <Box sx={fieldRow}>
                                 <Box>
                                     <FieldLabel>Duration (Hours)</FieldLabel>
                                     <Box sx={inputBase}>
@@ -151,6 +182,10 @@ const AddCourse = () => {
                                             sx={{ fontSize: '13.5px', color: 'grey.800' }} />
                                     </Box>
                                 </Box>
+                            </Box>
+
+                            {/* Row 3: Duration + Level */}
+                            <Box sx={fieldRow}>
                                 <Box>
                                     <FieldLabel>Level</FieldLabel>
                                     <FormControl fullWidth size="small">
@@ -177,7 +212,7 @@ const AddCourse = () => {
                             </Box>
 
                             {/* Certification Required toggle */}
-                            <Box sx={certCard}>
+                            {/* <Box sx={certCard}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                     <Box sx={{
                                         width: 34, height: 34, borderRadius: '8px',
@@ -197,23 +232,39 @@ const AddCourse = () => {
                                 </Box>
                                 <Switch checked={certRequired} onChange={e => setCertRequired(e.target.checked)}
                                     sx={switchSx} size="small" />
-                            </Box>
+                            </Box> */}
 
                             {/* Action row */}
                             <Box sx={actionRow}>
                                 <Button variant="text" sx={{
                                     color: 'grey.600', fontWeight: 600, fontSize: '13px',
                                     textTransform: 'none', px: 2,
+                                }} onClick={() => {
+                                    setForm({
+                                        title: '',
+                                        provider: '',
+                                        technology: 'Cloud Computing',
+                                        courseUrl: '',
+                                        duration: '',
+                                        level: 'Beginner',
+                                        description: '',
+                                    });
+                                    setCertRequired(false);
+                                    if (onClose) onClose();
                                 }}>
                                     Discard
                                 </Button>
-                                <Button variant="contained" startIcon={<AddRounded />} sx={{
-                                    background: BRAND_DARK, fontWeight: 600, fontSize: '13px',
-                                    borderRadius: '10px', textTransform: 'none', px: 3,
-                                    boxShadow: '0 4px 14px rgba(176,0,42,0.3)',
-                                    '&:hover': { background: BRAND_RED },
-                                }}>
-                                    Add Course
+                                <Button variant="contained"
+                                    startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : <AddRounded />}
+                                    disabled={isLoading}
+                                    onClick={handleAddCourse}
+                                    sx={{
+                                        background: BRAND_DARK, fontWeight: 600, fontSize: '13px',
+                                        borderRadius: '10px', textTransform: 'none', px: 3,
+                                        boxShadow: '0 4px 14px rgba(176,0,42,0.3)',
+                                        '&:hover': { background: BRAND_RED },
+                                    }}>
+                                    {isLoading ? 'Adding...' : 'Add Course'}
                                 </Button>
                             </Box>
                         </Box>
@@ -251,7 +302,7 @@ const AddCourse = () => {
                         </Box>
 
                         {/* Promo Card */}
-                        <Box sx={promoCard}>
+                        {/* <Box sx={promoCard}>
                             <Box sx={{
                                 position: 'absolute', right: -20, top: -20,
                                 width: 120, height: 120, borderRadius: '50%',
@@ -284,10 +335,10 @@ const AddCourse = () => {
                                     Learn More
                                 </Button>
                             </Box>
-                        </Box>
+                        </Box> */}
 
                         {/* Bulk Upload */}
-                        <Box sx={bulkUploadCard}>
+                        {/* <Box sx={bulkUploadCard}>
                             <CloudUploadRounded sx={{ fontSize: 36, color: 'grey.300', mb: 0.5 }} />
                             <Typography sx={{ fontWeight: 700, fontSize: '13.5px', color: 'grey.700' }}>
                                 Bulk Upload
@@ -302,7 +353,7 @@ const AddCourse = () => {
                             }}>
                                 Download Template
                             </Button>
-                        </Box>
+                        </Box> */}
 
                     </Box>
                 </Box>

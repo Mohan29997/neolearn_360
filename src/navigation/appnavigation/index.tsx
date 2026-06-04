@@ -11,7 +11,7 @@ import { appnavigationpath } from './apppath';
 import AppUtils from '../../providers/apputils';
 
 const AppNavigation = () => {
-    
+
     return (
         <Navigation>
             <Routes>
