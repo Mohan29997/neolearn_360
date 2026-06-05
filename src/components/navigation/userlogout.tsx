@@ -1,12 +1,8 @@
 import { Fragment, useState } from 'react';
 import { MenuItem, Divider, Typography, Dialog, useTheme, Stack, IconButton, Button, Box } from '@mui/material';
 import { CloseRounded } from '@mui/icons-material';
-import { useDispatch } from 'react-redux';
-// import { PCSVG, pcshortPng } from '../../assets/icon';
-import { setIsLogin } from '../../store/reducer/AuthHelper'
 
 const UserLogout = ({ onLogout }: { onLogout: () => void }) => {
-    const dispatch = useDispatch();
     const { palette: { error, divider } } = useTheme();
     const [isLogout, setIsLogout] = useState(false)
 
@@ -50,7 +46,6 @@ const UserLogout = ({ onLogout }: { onLogout: () => void }) => {
                         <Button onClick={() => {
                             onLogout();
                             setIsLogout(false);
-                            dispatch(setIsLogin({ isLogin: false }))
                         }} fullWidth size='small' variant='contained' color='primary' sx={{ fontSize: "14px", textTransform: "uppercase" }}>Yes, I'm sure</Button>
                     </Box>
                 </Stack>

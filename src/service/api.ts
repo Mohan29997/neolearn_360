@@ -4,13 +4,16 @@ import { SnackNotification } from '../helper/snackMessage';
 import { store } from '../store';
 import { setIsLogin } from '../store/reducer/AuthHelper';
 
-export const baseURL: string = "http://10.0.28.128:3000/api/v1";
+export const baseURL: string = "/api/v1";
 export const AXIOS = () => {
     const API: AxiosInstance = axiosNative.create({
         baseURL: baseURL,
         timeout: 10000,
         headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'ngrok-skip-browser-warning': 'true',
         },
     });
 
@@ -63,7 +66,7 @@ export const AXIOS = () => {
                         return API(originalRequest);
                     } else {
                         store.dispatch(setIsLogin({ isLogin: false }))
-                        StorageManager.caller();
+                        StorageManager.appLogout();
                     }
                 } catch (error) {
                     console.log("token.error", error);
