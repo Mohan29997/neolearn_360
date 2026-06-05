@@ -46,7 +46,7 @@ const Users = () => {
 
     const doFetch = (searchVal: string) => {
         setLoading(true);
-        const params: Record<string, any> = { page: 1, limit: 100 };
+        const params: Record<string, any> = { page: 1, limit: 90 };
         if (searchVal) params.search = searchVal;
         service.getUsers(params)
             .then((res: any) => {

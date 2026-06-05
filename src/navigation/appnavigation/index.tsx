@@ -7,6 +7,8 @@ import {
     BenchOnboarding,
     LearningJourneys,
     CourseRequests,
+    UserProfile,
+    Settings,
 } from '../../screens/app';
 import Navigation from '../../components/navigation';
 import { appnavigationpath } from './apppath';
@@ -24,6 +26,8 @@ const AppNavigation = () => {
                 <Route path={appnavigationpath.benchonboarding} element={<BenchOnboarding />} />
                 <Route path={appnavigationpath.learningjourneys} element={<LearningJourneys />} />
                 <Route path={appnavigationpath.courserequests} element={<CourseRequests />} />
+                <Route path={appnavigationpath.userprofile} element={<UserProfile />} />
+                <Route path={appnavigationpath.settings} element={<Settings />} />
 
                 <Route path='/' index={true} element={<Navigate to={appnavigationpath.admindashboard} replace={true} />} />
                 <Route path='*' index={true} element={<Navigate to={appnavigationpath.admindashboard} replace={true} />} />

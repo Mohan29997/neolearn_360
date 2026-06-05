@@ -15,4 +15,5 @@ export interface IOnboardUserPayload {
     department: string;
     officeLocation: string;
     manager_name?: string;
+    technologies?: string[];
 }

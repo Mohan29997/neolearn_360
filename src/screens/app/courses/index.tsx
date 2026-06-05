@@ -16,9 +16,9 @@ import {
   IconButton,
   CircularProgress,
   Chip,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
-import { Add as AddIcon, Close as CloseIcon, DeleteOutlineRounded } from '@mui/icons-material';
+import { Add as AddIcon, Close as CloseIcon, DeleteOutlineRounded, OpenInNewRounded } from '@mui/icons-material';
 import { useStyle } from '../lndcourses/style';
 import AddCourse from './addcourse';
 import { service } from '../../../service';
@@ -131,6 +131,7 @@ const Courses = () => {
                   <TableCell sx={styles.tableCellHeader}>PROVIDER</TableCell>
                   <TableCell sx={styles.tableCellHeader}>LEVEL</TableCell>
                   <TableCell sx={styles.tableCellHeader}>DURATION (HRS)</TableCell>
+                  <TableCell sx={styles.tableCellHeader}>COURSE URL</TableCell>
                   <TableCell sx={styles.tableCellHeader}>DESCRIPTION</TableCell>
                   <TableCell sx={styles.tableCellHeader} align="right">ACTIONS</TableCell>
                 </TableRow>
@@ -172,6 +173,28 @@ const Courses = () => {
                         <Typography variant="body2" sx={styles.tableTextBase}>
                           {course.duration_hours || 0} hrs
                         </Typography>
+                      </TableCell>
+                      <TableCell>
+                        {course.course_url ? (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            endIcon={<OpenInNewRounded sx={{ fontSize: 13 }} />}
+                            component="a"
+                            href={course.course_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                              fontSize: 12, textTransform: 'none', borderRadius: '6px',
+                              borderColor: '#FECDD3', color: '#8B1A2E', fontWeight: 600,
+                              '&:hover': { borderColor: '#8B1A2E', bgcolor: '#FFF1F2' },
+                            }}
+                          >
+                            Open
+                          </Button>
+                        ) : (
+                          <Typography sx={{ fontSize: 13, color: 'grey.400' }}>—</Typography>
+                        )}
                       </TableCell>
                       <TableCell sx={{ maxWidth: 200 }}>
                         <Tooltip 

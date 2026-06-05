@@ -2,11 +2,11 @@ import { Fragment, useState } from 'react';
 import {
     Box, Typography, Chip, LinearProgress,
     Dialog, DialogTitle, DialogContent, IconButton,
-    Divider, List, ListItem, ListItemText,
+    Divider, List, ListItem, ListItemText, Tooltip,
 } from '@mui/material';
 import {
     ChevronRightRounded, CloseRounded, OpenInNewRounded,
-    CheckCircleRounded, RadioButtonUncheckedRounded,
+    CheckCircleRounded, RadioButtonUncheckedRounded, AddCircleRounded, RemoveCircleRounded,
 } from '@mui/icons-material';
 import TabTitle from '../../../components/tabtitle';
 
@@ -288,7 +288,7 @@ const CourseDetailModal = ({
 
 // ── Journey Card ──────────────────────────────────────────────────────────────
 
-const JourneyCard = ({ journey, onClick }: { journey: Journey; onClick: () => void }) => {
+const JourneyCard = ({ journey, onClick, onProgressChange }: { journey: Journey; onClick: () => void; onProgressChange: (delta: number) => void }) => {
     const lc = LEVEL_COLORS[journey.level] ?? LEVEL_COLORS.Intermediate;
     return (
         <Box
@@ -335,7 +335,7 @@ const JourneyCard = ({ journey, onClick }: { journey: Journey; onClick: () => vo
                 </Box>
 
                 {/* Right — progress */}
-                <Box sx={{ minWidth: 180, textAlign: 'right' }}>
+                <Box sx={{ minWidth: 180, textAlign: 'right' }} onClick={e => e.stopPropagation()}>
                     <Typography sx={{ fontSize: 11, fontWeight: 700, color: 'grey.500', letterSpacing: '0.5px', mb: 0.5 }}>
                         CURRENT PROGRAM PROGRESS
                     </Typography>
@@ -353,9 +353,29 @@ const JourneyCard = ({ journey, onClick }: { journey: Journey; onClick: () => vo
                             '& .MuiLinearProgress-bar': { bgcolor: BRAND_RED, borderRadius: 3 },
                         }}
                     />
-                    <Typography sx={{ fontSize: 12, color: 'grey.500', mt: 0.8, textAlign: 'right' }}>
-                        {journey.completedCourses} of {journey.courses} courses completed
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5, mt: 0.8 }}>
+                        <Tooltip title="Remove one course">
+                            <span>
+                                <IconButton size="small" disabled={journey.completedCourses === 0}
+                                    onClick={() => onProgressChange(-1)}
+                                    sx={{ p: 0.3, color: journey.completedCourses === 0 ? 'grey.300' : 'grey.500', '&:hover': { color: BRAND_RED } }}>
+                                    <RemoveCircleRounded sx={{ fontSize: 18 }} />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                        <Typography sx={{ fontSize: 12, color: 'grey.500' }}>
+                            {journey.completedCourses} of {journey.courses} courses
+                        </Typography>
+                        <Tooltip title="Complete one more course">
+                            <span>
+                                <IconButton size="small" disabled={journey.completedCourses === journey.courses}
+                                    onClick={() => onProgressChange(1)}
+                                    sx={{ p: 0.3, color: journey.completedCourses === journey.courses ? 'grey.300' : BRAND_RED, '&:hover': { color: '#6e1424' } }}>
+                                    <AddCircleRounded sx={{ fontSize: 18 }} />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    </Box>
                 </Box>
             </Box>
         </Box>
@@ -365,7 +385,15 @@ const JourneyCard = ({ journey, onClick }: { journey: Journey; onClick: () => vo
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 const LearningJourneys = () => {
-    const [journeys] = useState<Journey[]>(MOCK_JOURNEYS);
+    const [journeys, setJourneys] = useState<Journey[]>(MOCK_JOURNEYS);
+
+    const updateProgress = (id: string, delta: number) => {
+        setJourneys(prev => prev.map(j => {
+            if (j._id !== id) return j;
+            const newCompleted = Math.min(j.courses, Math.max(0, j.completedCourses + delta));
+            return { ...j, completedCourses: newCompleted, progress: Math.round((newCompleted / j.courses) * 100) };
+        }));
+    };
     const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null);
 
     return (
@@ -392,7 +420,10 @@ const LearningJourneys = () => {
 
                 {/* Journey Cards */}
                 {journeys.map(j => (
-                    <JourneyCard key={j._id} journey={j} onClick={() => setSelectedJourney(j)} />
+                    <JourneyCard key={j._id} journey={j}
+                        onClick={() => setSelectedJourney(j)}
+                        onProgressChange={(delta) => updateProgress(j._id, delta)}
+                    />
                 ))}
             </Box>
 

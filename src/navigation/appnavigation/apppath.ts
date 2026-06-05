@@ -9,4 +9,5 @@ export const appnavigationpath = {
     "courserequests": "/admin/course-requests",
     "settings": "/admin/settings",
     "lndcourses": "/lnd/courses",
+    "userprofile": "/admin/profile",
 } as const;

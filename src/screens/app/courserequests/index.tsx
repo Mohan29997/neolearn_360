@@ -1,4 +1,4 @@
-import { AddRounded, CloseRounded } from '@mui/icons-material';
+import { CloseRounded } from '@mui/icons-material';
 import {
     Box,
     Button,
@@ -13,8 +13,8 @@ import {
     IconButton,
     InputLabel,
     MenuItem,
-    Modal,
     Select,
+    Stack,
     Table,
     TableBody,
     TableCell,
@@ -41,9 +41,6 @@ const CourseRequests = () => {
     const [totalCount, setTotalCount] = useState(0);
 
     // Modals
-    const [startModalOpen, setStartModalOpen] = useState(false);
-    const [selectedCourse, setSelectedCourse] = useState<any>(null);
-
     const [assignModalOpen, setAssignModalOpen] = useState(false);
     const [isAssigning, setIsAssigning] = useState(false);
 
@@ -52,7 +49,9 @@ const CourseRequests = () => {
     const [coursesList, setCoursesList] = useState<any[]>([]);
 
     const [formUser, setFormUser] = useState('');
+    const [formUserLabel, setFormUserLabel] = useState('');
     const [formCourse, setFormCourse] = useState('');
+    const [formCourseLabel, setFormCourseLabel] = useState('');
     const [formCoordinator, setFormCoordinator] = useState('');
 
     useEffect(() => {
@@ -97,7 +96,7 @@ const CourseRequests = () => {
     const fetchFormData = async () => {
         try {
             const [uRes, cRes] = await Promise.all([
-                service.getUsers({ page: 1, limit: 100 }),
+                service.getUsers({ page: 1, limit: 90 }),
                 service.getCourses(1, 100)
             ]);
             console.log('===>', uRes)
@@ -112,9 +111,10 @@ const CourseRequests = () => {
     };
 
     const handleOpenAssignRow = (item: any) => {
-        // user_id in the payload expects the USER_OBJECT_ID
         setFormUser(item.user_id || '');
+        setFormUserLabel(item.user_name || item.user_email || '');
         setFormCourse(item.course_id || '');
+        setFormCourseLabel(item.course_title || '');
         setFormCoordinator('');
         setAssignModalOpen(true);
         fetchFormData();
@@ -134,7 +134,9 @@ const CourseRequests = () => {
             SnackNotification("Course assigned successfully", "success");
             setAssignModalOpen(false);
             setFormUser('');
+            setFormUserLabel('');
             setFormCourse('');
+            setFormCourseLabel('');
             setFormCoordinator('');
             fetchAssignedCourses();
         } catch (e: any) {
@@ -237,15 +239,22 @@ const CourseRequests = () => {
                                                     />
                                                 </TableCell>
                                                 <TableCell align="right">
-                                                    <Button
-                                                        variant="contained"
-                                                        size="small"
-                                                        startIcon={<AddRounded />}
-                                                        onClick={() => handleOpenAssignRow(item)}
-                                                        sx={{ textTransform: 'none', borderRadius: '6px', fontWeight: 600, background: '#1976d2', boxShadow: 'none', mr: 1 }}
-                                                    >
-                                                        Assign Course
-                                                    </Button>
+                                                    {(item.course_assigned === true && item.coordinator_id) ? (
+                                                        <Chip
+                                                            label="Course Started"
+                                                            size="small"
+                                                            sx={{ fontWeight: 600, fontSize: '0.75rem', bgcolor: '#EFF6FF', color: '#1D4ED8', border: 'none' }}
+                                                        />
+                                                    ) : (
+                                                        <Button
+                                                            variant="outlined"
+                                                            size="small"
+                                                            onClick={() => handleOpenAssignRow(item)}
+                                                            sx={{ textTransform: 'none', borderRadius: '6px', fontWeight: 600, fontSize: '0.75rem', borderColor: 'grey.400', color: 'grey.700' }}
+                                                        >
+                                                            Start Course
+                                                        </Button>
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         )
@@ -280,18 +289,73 @@ const CourseRequests = () => {
                 </DialogTitle>
 
                 <DialogContent sx={{ pt: '16px !important' }}>
+                    {/* Employee (pre-filled from row, shown as chip) */}
+                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block', fontWeight: 600 }}>
+                        Employee
+                    </Typography>
+                    <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 3, minHeight: 32 }}>
+                        {formUser ? (
+                            <Chip
+                                label={formUserLabel || formUser}
+                                onDelete={() => { setFormUser(''); setFormUserLabel(''); }}
+                                size="small"
+                                sx={{ fontWeight: 600, bgcolor: 'grey.100' }}
+                            />
+                        ) : (
+                            <Typography variant="body2" color="text.disabled" sx={{ lineHeight: '28px' }}>
+                                No employee selected
+                            </Typography>
+                        )}
+                    </Stack>
+
+                    {/* Course */}
+                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block', fontWeight: 600 }}>
+                        Course
+                    </Typography>
+                    {formCourse && (
+                        <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
+                            <Chip
+                                label={formCourseLabel || formCourse}
+                                onDelete={() => { setFormCourse(''); setFormCourseLabel(''); }}
+                                size="small"
+                                sx={{ fontWeight: 600, bgcolor: 'grey.100' }}
+                            />
+                        </Stack>
+                    )}
                     <FormControl fullWidth size="small" sx={{ mb: 3 }}>
-                        <InputLabel id="course-select">Select Course</InputLabel>
-                        <Select labelId="course-select" value={formCourse} label="Select Course" onChange={(e) => setFormCourse(e.target.value)}>
+                        <InputLabel id="course-select" shrink={!!formCourse}>Select Course</InputLabel>
+                        <Select labelId="course-select" value={formCourse} label="Select Course" notched={!!formCourse}
+                            onChange={(e) => {
+                                const selected = coursesList.find(c => c._id === e.target.value);
+                                setFormCourse(e.target.value);
+                                setFormCourseLabel(selected?.title || selected?.course_title || '');
+                            }}
+                        >
                             {coursesList.map(c => (
                                 <MenuItem key={c._id} value={c._id}>{c.title || c.course_title}</MenuItem>
                             ))}
                         </Select>
                     </FormControl>
 
+                    {/* Coordinator */}
+                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block', fontWeight: 600 }}>
+                        Coordinator (Mentor)
+                    </Typography>
+                    {formCoordinator && (
+                        <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 1 }}>
+                            <Chip
+                                label={users.find(u => u._id === formCoordinator)?.name || formCoordinator}
+                                onDelete={() => setFormCoordinator('')}
+                                size="small"
+                                sx={{ fontWeight: 600, bgcolor: 'grey.100' }}
+                            />
+                        </Stack>
+                    )}
                     <FormControl fullWidth size="small" sx={{ mb: 1 }}>
-                        <InputLabel id="mentor-select">Select Coordinator (Mentor)</InputLabel>
-                        <Select labelId="mentor-select" value={formCoordinator} label="Select Coordinator (Mentor)" onChange={(e) => setFormCoordinator(e.target.value)}>
+                        <InputLabel id="mentor-select" shrink={!!formCoordinator}>Select Coordinator</InputLabel>
+                        <Select labelId="mentor-select" value={formCoordinator} label="Select Coordinator" notched={!!formCoordinator}
+                            onChange={(e) => setFormCoordinator(e.target.value)}
+                        >
                             {users.map(u => (
                                 <MenuItem key={u._id} value={u._id}>{u.name} {u.employeeId ? `(${u.employeeId})` : ''}</MenuItem>
                             ))}
@@ -299,57 +363,26 @@ const CourseRequests = () => {
                     </FormControl>
                 </DialogContent>
 
-                <DialogActions sx={{ px: 3, pb: 3, flexDirection: 'column', gap: 1 }}>
-                    <Typography
-                        variant="body1"
+                <DialogActions sx={{ px: 3, pb: 3, gap: 1 }}>
+                    <Button
+                        variant="outlined"
                         onClick={() => setAssignModalOpen(false)}
-                        sx={{ cursor: 'pointer', mb: 1, fontWeight: 500, alignSelf: 'center' }}
+                        sx={{ textTransform: 'none', borderRadius: '8px', fontWeight: 500, flex: 1 }}
                     >
                         Cancel
-                    </Typography>
+                    </Button>
                     <Button
-                        fullWidth
                         variant="contained"
                         disabled={isAssigning || !formUser || !formCourse || !formCoordinator}
                         onClick={handleAssignCourse}
-                        sx={{
-                            background: '#ff7b7b',
-                            '&:hover': { background: '#ff5c5c' },
-                            color: 'white',
-                            py: 1.2,
-                            borderRadius: '8px',
-                            fontSize: '16px',
-                            textTransform: 'none',
-                            ml: '0 !important'
-                        }}
+                        sx={{ ...styles.submitButton, flex: 1, py: 1, fontSize: '15px' }}
                     >
                         {isAssigning ? 'Assigning...' : 'Assign'}
                     </Button>
                 </DialogActions>
             </Dialog>
 
-            {/* Start Course / Details Modal */}
-            <Modal open={startModalOpen} onClose={() => setStartModalOpen(false)}>
-                <Box sx={{
-                    position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                    width: 400, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 24, p: 4
-                }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                        <Typography variant="h6" fontWeight={700}>Course Details</Typography>
-                        <IconButton onClick={() => setStartModalOpen(false)} size="small">
-                            <CloseRounded />
-                        </IconButton>
-                    </Box>
-                    <Typography variant="body1" mb={3}>
-                        <strong>{selectedCourse?.user_name}</strong> is assigned to <strong>{selectedCourse?.course_title || 'this course'}</strong>.
-                        <br /><br />
-                        Progress: {selectedCourse?.progress_percent || 0}%
-                    </Typography>
-                    <Box display="flex" justifyContent="flex-end" gap={2}>
-                        <Button onClick={() => setStartModalOpen(false)} color="inherit">Close</Button>
-                    </Box>
-                </Box>
-            </Modal>
+
         </Fragment>
     );
 };
