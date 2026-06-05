@@ -57,10 +57,10 @@ const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dis
                     <Typography></Typography>
                     <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 1 }}>
                         <Tooltip title="Support">
-                            <IconButton size="small"><HelpOutlineRounded sx={{ color: text?.secondary }} /></IconButton>
+                            <IconButton size="small"><HelpOutlineRounded sx={{ color: '#8B1A2E' }} /></IconButton>
                         </Tooltip>
                         <Tooltip title="Notifications">
-                            <IconButton size="small"><NotificationsNoneRounded sx={{ color: text?.secondary }} /></IconButton>
+                            <IconButton size="small"><NotificationsNoneRounded sx={{ color: '#8B1A2E' }} /></IconButton>
                         </Tooltip>
                         <Tooltip title={profile?.name || 'Profile'}>
                             <Avatar sx={{ width: 32, height: 32, bgcolor: '#8B1A2E', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
@@ -68,7 +68,7 @@ const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dis
                             </Avatar>
                         </Tooltip>
                         <Tooltip title="Logout">
-                            <IconButton size="small" onClick={handleLogout}><LogoutRounded sx={{ color: text?.secondary }} /></IconButton>
+                            <IconButton size="small" onClick={handleLogout}><LogoutRounded sx={{ color: '#8B1A2E' }} /></IconButton>
                         </Tooltip>
                     </Box>
                 </Box>

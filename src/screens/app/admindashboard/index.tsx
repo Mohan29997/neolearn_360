@@ -320,12 +320,6 @@ const AdminDashboard = () => {
                                 />
                             )}
                             <QuickActionCard
-                                icon={<AssignmentRounded sx={{ fontSize: 20, color: BRAND_RED }} />}
-                                title="Assign Training"
-                                sub="Bulk enroll users in courses"
-                                onClick={() => navigate(appnavigationpath.benchonboarding)}
-                            />
-                            <QuickActionCard
                                 icon={<SchoolRounded sx={{ fontSize: 20, color: BRAND_RED }} />}
                                 title="View Courses"
                                 sub="Browse available learning content"
