@@ -138,10 +138,25 @@ const BenchOnboarding = () => {
             });
     };
 
-    const handleAssign = () => {
-        // TODO: call API to assign course
-        setAssignTarget(null);
-        setSelectedCourse('');
+    const [assigning, setAssigning] = useState(false);
+
+    const handleAssign = async () => {
+        if (!assignTarget || !selectedCourse || !selectedMentor) return;
+        setAssigning(true);
+        try {
+            await service.assignCourse({
+                course_id: selectedCourse,
+                mentor_id: selectedMentor,
+                user_id: assignTarget._id,
+            });
+            setAssignTarget(null);
+            setSelectedCourse('');
+            setSelectedMentor('');
+            setCourseSearch('');
+            setMentorSearch('');
+        } finally {
+            setAssigning(false);
+        }
     };
 
     const filtered = employees.filter(e =>
@@ -370,7 +385,7 @@ const BenchOnboarding = () => {
                                 return u ? u.name : <Typography sx={{ color: 'grey.400', fontSize: 13 }}>Select a mentor...</Typography>;
                             }}
                             sx={{ fontSize: 13, borderRadius: '8px' }}
-                            MenuProps={{ autoFocus: false, slotProps: { paper: { sx: { maxHeight: 360, display: 'flex', flexDirection: 'column' } } } }}
+                            MenuProps={{ autoFocus: false, slotProps: { paper: { sx: { maxHeight: 320 } }, list: { sx: { pt: 0, overflowY: 'auto' } } } }}
                             onClose={() => setMentorSearch('')}
                         >
                             <Box sx={{ px: 1.5, py: 1, position: 'sticky', top: 0, bgcolor: '#fff', zIndex: 1, borderBottom: '1px solid #F0F0F0' }}
@@ -380,21 +395,19 @@ const BenchOnboarding = () => {
                                     <InputBase autoFocus fullWidth placeholder="Search mentors..." value={mentorSearch} onChange={e => setMentorSearch(e.target.value)} sx={{ fontSize: '13px' }} />
                                 </Box>
                             </Box>
-                            <Box sx={{ overflowY: 'auto', flex: 1 }} onKeyDown={e => e.stopPropagation()}>
-                                {allUsers
-                                    .filter(u => u.name.toLowerCase().includes(mentorSearch.toLowerCase()))
-                                    .map(u => (
-                                        <MenuItem key={u._id} value={u._id}>
-                                            <Box>
-                                                <Typography sx={{ fontSize: 13, fontWeight: 500 }}>{u.name}</Typography>
-                                                <Typography sx={{ fontSize: 11, color: 'grey.500' }}>{u.role}{u.department ? ` · ${u.department}` : ''}</Typography>
-                                            </Box>
-                                        </MenuItem>
-                                    ))}
-                                {allUsers.filter(u => u.name.toLowerCase().includes(mentorSearch.toLowerCase())).length === 0 && (
-                                    <Typography sx={{ px: 2, py: 1.5, fontSize: 13, color: 'grey.400' }}>No mentors found</Typography>
-                                )}
-                            </Box>
+                            {allUsers
+                                .filter(u => u.name.toLowerCase().includes(mentorSearch.toLowerCase()))
+                                .map(u => (
+                                    <MenuItem key={u._id} value={u._id}>
+                                        <Box>
+                                            <Typography sx={{ fontSize: 13, fontWeight: 500 }}>{u.name}</Typography>
+                                            <Typography sx={{ fontSize: 11, color: 'grey.500' }}>{u.role}{u.department ? ` · ${u.department}` : ''}</Typography>
+                                        </Box>
+                                    </MenuItem>
+                                ))}
+                            {allUsers.filter(u => u.name.toLowerCase().includes(mentorSearch.toLowerCase())).length === 0 && (
+                                <Typography sx={{ px: 2, py: 1.5, fontSize: 13, color: 'grey.400' }}>No mentors found</Typography>
+                            )}
                         </Select>
                     </FormControl>
 
@@ -409,45 +422,35 @@ const BenchOnboarding = () => {
                                 return c ? c.title : <Typography sx={{ color: 'grey.400', fontSize: 13 }}>Choose a course...</Typography>;
                             }}
                             sx={{ fontSize: 13, borderRadius: '8px' }}
-                            MenuProps={{ autoFocus: false, slotProps: { paper: { sx: { maxHeight: 360, display: 'flex', flexDirection: 'column' } } } }}
+                            MenuProps={{ autoFocus: false, slotProps: { paper: { sx: { maxHeight: 320 } }, list: { sx: { pt: 0, overflowY: 'auto' } } } }}
                             onClose={() => setCourseSearch('')}
                         >
-                            {/* Search inside dropdown */}
                             <Box sx={{ px: 1.5, py: 1, position: 'sticky', top: 0, bgcolor: '#fff', zIndex: 1, borderBottom: '1px solid #F0F0F0' }}
                                 onKeyDown={e => e.stopPropagation()}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1, py: 0.6, border: '1px solid #E5E7EB', borderRadius: '8px', bgcolor: '#FAFAFA' }}>
                                     <SearchRounded sx={{ fontSize: 15, color: 'grey.400', flexShrink: 0 }} />
-                                    <InputBase
-                                        autoFocus
-                                        fullWidth
-                                        placeholder="Search courses..."
-                                        value={courseSearch}
-                                        onChange={e => setCourseSearch(e.target.value)}
-                                        sx={{ fontSize: '13px' }}
-                                    />
+                                    <InputBase autoFocus fullWidth placeholder="Search courses..." value={courseSearch} onChange={e => setCourseSearch(e.target.value)} sx={{ fontSize: '13px' }} />
                                 </Box>
                             </Box>
-                            <Box sx={{ overflowY: 'auto', flex: 1 }} onKeyDown={e => e.stopPropagation()}>
-                                {courses
-                                    .filter((c: Course) => c.title.toLowerCase().includes(courseSearch.toLowerCase()))
-                                    .map((c: Course) => (
-                                        <MenuItem key={c._id} value={c._id}>
-                                            <Box>
-                                                <Typography sx={{ fontSize: 13, fontWeight: 500 }}>{c.title}</Typography>
-                                                <Typography sx={{ fontSize: 11, color: 'grey.500' }}>{c.duration}</Typography>
-                                            </Box>
-                                        </MenuItem>
-                                    ))}
-                                {courses.filter((c: Course) => c.title.toLowerCase().includes(courseSearch.toLowerCase())).length === 0 && (
-                                    <Typography sx={{ px: 2, py: 1.5, fontSize: 13, color: 'grey.400' }}>No courses found</Typography>
-                                )}
-                            </Box>
+                            {courses
+                                .filter((c: Course) => c.title.toLowerCase().includes(courseSearch.toLowerCase()))
+                                .map((c: Course) => (
+                                    <MenuItem key={c._id} value={c._id}>
+                                        <Box>
+                                            <Typography sx={{ fontSize: 13, fontWeight: 500 }}>{c.title}</Typography>
+                                            <Typography sx={{ fontSize: 11, color: 'grey.500' }}>{c.duration}</Typography>
+                                        </Box>
+                                    </MenuItem>
+                                ))}
+                            {courses.filter((c: Course) => c.title.toLowerCase().includes(courseSearch.toLowerCase())).length === 0 && (
+                                <Typography sx={{ px: 2, py: 1.5, fontSize: 13, color: 'grey.400' }}>No courses found</Typography>
+                            )}
                         </Select>
                     </FormControl>
 
                     <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'flex-end' }}>
                         <Button onClick={() => setAssignTarget(null)} sx={{ textTransform: 'none', color: 'grey.600', borderRadius: '8px' }}>Cancel</Button>
-                        <Button variant="contained" disabled={!selectedCourse} onClick={handleAssign}
+                        <Button variant="contained" disabled={!selectedCourse || !selectedMentor || assigning} onClick={handleAssign}
                             sx={{ textTransform: 'none', bgcolor: BRAND_RED, borderRadius: '8px', '&:hover': { bgcolor: '#6e1424' }, '&:disabled': { bgcolor: 'grey.200' } }}>
                             Assign
                         </Button>

@@ -59,4 +59,7 @@ export class service {
     static async addCourse(payload: any) {
         return await axiosInstance.post("/courses", payload)
     }
+    static async assignCourse(payload: { course_id: string; mentor_id: string; user_id: string }) {
+        return await axiosInstance.post("/courses/assign", payload)
+    }
 }
