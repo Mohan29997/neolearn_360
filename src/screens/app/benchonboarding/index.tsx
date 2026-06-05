@@ -11,7 +11,10 @@ import {
     FilterListRounded, FlashOnRounded, BuildRounded,
     MenuBookRounded, CloseRounded, SearchRounded,
 } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 import TabTitle from '../../../components/tabtitle';
+import { SnackNotification } from '../../../helper/snackMessage';
+import { CheckCircleRounded } from '@mui/icons-material';
 
 const BRAND_RED = '#8B1A2E';
 
@@ -34,6 +37,8 @@ interface Employee {
     techStack: string[];
     isActive: boolean;
     status: string;
+    courseStarted: boolean;
+    courseAssigned: string | null;
 }
 
 
@@ -68,9 +73,25 @@ const BenchOnboarding = () => {
     const [mentorSearch, setMentorSearch] = useState('');
     const [courses, setCourses] = useState<Course[]>([]);
     const [allUsers, setAllUsers] = useState<{ _id: string; name: string; role: string; department?: string }[]>([]);
+    const [courseStatusMap, setCourseStatusMap] = useState<Map<string, boolean>>(new Map());
+    const navigate = useNavigate();
 
     useEffect(() => {
-        service.getCourses(1, 100)
+        service.getAssignedCourses({ page: 1, limit: 90 })
+            .then((res: any) => {
+                const list: any[] = res?.data?.assignments ?? res?.assignments ?? (Array.isArray(res?.data) ? res.data : []);
+                const map = new Map<string, boolean>();
+                list.forEach((a: any) => {
+                    const uid = a.user_id?._id ?? a.user_id;
+                    if (uid) map.set(uid, !!(a.course_started));
+                });
+                setCourseStatusMap(map);
+            })
+            .catch(() => {});
+    }, []);
+
+    useEffect(() => {
+        service.getCourses(1, 90)
             .then((res: any) => {
                 const list: any[] = res?.data?.courses ?? res?.courses ?? (Array.isArray(res?.data) ? res.data : []);
                 setCourses(list.map((c: any) => ({
@@ -83,7 +104,7 @@ const BenchOnboarding = () => {
     }, []);
 
     useEffect(() => {
-        service.getUsers({ page: 1, limit: 80 })
+        service.getUsers({ page: 1, limit: 90 })
             .then((res: any) => {
                 const list: any[] = res?.data?.users ?? res?.users ?? (Array.isArray(res?.data) ? res.data : []);
                 setAllUsers(list.map((u: any) => ({
@@ -98,7 +119,7 @@ const BenchOnboarding = () => {
 
     useEffect(() => {
         setLoading(true);
-        service.getUsers({ page: 1, limit: 80 })
+        service.getUsers({ page: 1, limit: 90 })
             .then((res: any) => {
                 const list: any[] = res?.data?.users ?? res?.users ?? (Array.isArray(res?.data) ? res.data : []);
                 const mapped: Employee[] = list
@@ -114,6 +135,8 @@ const BenchOnboarding = () => {
                         techStack: Array.isArray(u.technologies) ? u.technologies : [],
                         isActive: u.isActive ?? true,
                         status: { on_bench: 'On Bench', shadowing: 'Shadowing', on_project: 'On Project' }[u.status as string] ?? 'On Bench',
+                        courseStarted: u.course_started === true,
+                        courseAssigned: u.course_assigned ?? null,
                     }));
                 setEmployees(
                     isManager && managerDept
@@ -146,16 +169,29 @@ const BenchOnboarding = () => {
         if (!assignTarget || !selectedCourse || !selectedMentor) return;
         setAssigning(true);
         try {
-            await service.assignCourse({
+            const res: any = await service.assignCourse({
                 course_id: selectedCourse,
                 mentor_id: selectedMentor,
                 user_id: assignTarget._id,
             });
-            setAssignTarget(null);
-            setSelectedCourse('');
-            setSelectedMentor('');
-            setCourseSearch('');
-            setMentorSearch('');
+            if (res?.success === false) {
+                SnackNotification(res?.message || 'Already assigned', 'warning');
+                setCourseStatusMap(prev => new Map(prev).set(assignTarget._id, false));
+            } else {
+                SnackNotification(res?.message || 'Course assigned successfully', 'success');
+                setCourseStatusMap(prev => new Map(prev).set(assignTarget._id, false));
+                setEmployees(prev => prev.map(e => e._id === assignTarget._id ? { ...e, courseAssigned: 'assigned' } : e));
+                setAssignTarget(null);
+                setSelectedCourse('');
+                setSelectedMentor('');
+                setCourseSearch('');
+                setMentorSearch('');
+            }
+        } catch (err: any) {
+            const msg = err?.response?.data?.message || err?.message || 'Failed to assign course';
+            const isAlreadyAssigned = msg.toLowerCase().includes('already assigned');
+            if (isAlreadyAssigned) setEmployees(prev => prev.map(e => e._id === assignTarget._id ? { ...e, courseAssigned: 'assigned' } : e));
+            SnackNotification(msg, isAlreadyAssigned ? 'warning' : 'error');
         } finally {
             setAssigning(false);
         }
@@ -315,25 +351,44 @@ const BenchOnboarding = () => {
                                                 )}
                                             </TableCell>
 
-                                            {/* ACTIONS — Assign Course only for On Bench */}
+                                            {/* ACTIONS */}
                                             <TableCell>
-                                                {isOnBench && (
-                                                    <Button
-                                                        size="small"
-                                                        startIcon={<MenuBookRounded sx={{ fontSize: 15 }} />}
-                                                        onClick={() => { setAssignTarget(emp); setSelectedCourse(''); setSelectedMentor(''); setCourseSearch(''); setMentorSearch(''); }}
-                                                        sx={{
+                                                {isOnBench && (() => {
+                                                    if (emp.courseStarted) return (
+                                                        <Button size="small" sx={{
                                                             textTransform: 'none', fontSize: 12, fontWeight: 600,
-                                                            color: BRAND_RED, borderColor: '#FECDD3',
-                                                            bgcolor: '#FFF1F2', borderRadius: '8px',
-                                                            border: '1px solid #FECDD3',
-                                                            whiteSpace: 'nowrap',
-                                                            '&:hover': { bgcolor: '#FFE4E8' },
-                                                        }}
-                                                    >
-                                                        Assign Course
-                                                    </Button>
-                                                )}
+                                                            color: '#1D4ED8', bgcolor: '#EFF6FF',
+                                                            borderRadius: '8px', border: '1px solid #BFDBFE',
+                                                            whiteSpace: 'nowrap', '&:hover': { bgcolor: '#DBEAFE' },
+                                                        }}>
+                                                            Course Started
+                                                        </Button>
+                                                    );
+                                                    if (emp.courseAssigned !== null) return (
+                                                        <Button size="small" startIcon={<CheckCircleRounded sx={{ fontSize: 15 }} />}
+                                                            onClick={() => navigate('/admin/courses')}
+                                                            sx={{
+                                                                textTransform: 'none', fontSize: 12, fontWeight: 600,
+                                                                color: '#16A34A', bgcolor: '#F0FDF4',
+                                                                borderRadius: '8px', border: '1px solid #BBF7D0',
+                                                                whiteSpace: 'nowrap', '&:hover': { bgcolor: '#DCFCE7' },
+                                                            }}>
+                                                            Course Assigned
+                                                        </Button>
+                                                    );
+                                                    return (
+                                                        <Button size="small" startIcon={<MenuBookRounded sx={{ fontSize: 15 }} />}
+                                                            onClick={() => { setAssignTarget(emp); setSelectedCourse(''); setSelectedMentor(''); setCourseSearch(''); setMentorSearch(''); }}
+                                                            sx={{
+                                                                textTransform: 'none', fontSize: 12, fontWeight: 600,
+                                                                color: BRAND_RED, bgcolor: '#FFF1F2',
+                                                                borderRadius: '8px', border: '1px solid #FECDD3',
+                                                                whiteSpace: 'nowrap', '&:hover': { bgcolor: '#FFE4E8' },
+                                                            }}>
+                                                            Assign Course
+                                                        </Button>
+                                                    );
+                                                })()}
                                             </TableCell>
                                         </TableRow>
                                     );

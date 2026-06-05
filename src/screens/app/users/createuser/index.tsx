@@ -116,13 +116,14 @@ const CreateUserForm = ({ onSuccess }: CreateUserFormProps) => {
                 role: form.role,
                 department: form.department,
                 officeLocation: form.officeLocation,
+                technologies: skills,
                 ...(form.role.toUpperCase() === 'EMPLOYEE' && form.reportingManager
                     ? { manager_name: form.reportingManager }
                     : {}),
             });
             SnackNotification('User onboarded successfully', 'success');
             setForm({ employeeId: '', fullName: '', email: '', password: '123456', role: '', department: '', reportingManager: '', officeLocation: '' });
-            setSkills(INITIAL_SKILLS);
+            setSkills([]);
             onSuccess?.();
         } catch {
             // error handled by interceptor

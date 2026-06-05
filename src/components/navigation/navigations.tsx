@@ -88,7 +88,7 @@ export const navigations = (role?: UserRole): { _id: number, visible: true | fal
             visible: true,
             isActive: [appnavigationpath.settings],
             navigator: appnavigationpath.settings,
-            name: "Settings",
+            name: "User Profile",
             icon: (color: string) => <SettingsRounded fontSize="small" sx={{ color }} />
         },
         // {

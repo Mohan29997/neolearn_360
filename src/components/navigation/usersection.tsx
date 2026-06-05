@@ -1,17 +1,20 @@
 import { Fragment, useState } from 'react';
-import { Box, useTheme, Avatar, Typography, Divider, Stack, Popover, Chip } from '@mui/material'
-import { BadgeRounded, EmailRounded, WorkRounded, KeyboardArrowDownRounded } from '@mui/icons-material';
+import { Box, useTheme, Avatar, Typography, Divider, Stack, Popover, Chip, MenuItem } from '@mui/material'
+import { BadgeRounded, EmailRounded, WorkRounded, KeyboardArrowDownRounded, PersonRounded } from '@mui/icons-material';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import UserLogout from './userlogout';
 import { StorageManager } from '../../storagemanager';
 import { setIsLogin } from '../../store/reducer/AuthHelper';
 import { resetProfile } from '../../store/reducer/AdminProfile';
 import { useAppSelector } from '../../hooks/useAppSelector';
+import { appnavigationpath } from '../../navigation/appnavigation/apppath';
 
 const BRAND_RED = '#8B1A2E';
 
 const UserSection = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { palette: { primary, common, text, error } } = useTheme();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
@@ -117,6 +120,13 @@ const UserSection = () => {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Box sx={{ p: 1 }}>
+          <MenuItem
+            onClick={() => { setAnchorEl(null); navigate(appnavigationpath.userprofile); }}
+            sx={{ borderRadius: '8px', fontSize: 13, color: 'grey.700', gap: 1.2, py: 1 }}
+          >
+            <PersonRounded sx={{ fontSize: 17, color: 'grey.400' }} />
+            View Profile
+          </MenuItem>
           <UserLogout onLogout={onLogout} />
         </Box>
       </Popover>

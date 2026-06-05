@@ -5,6 +5,8 @@ import Departments from "./departments";
 import BenchOnboarding from "./benchonboarding";
 import LearningJourneys from "./learningjourneys";
 import CourseRequests from "./courserequests";
+import UserProfile from "./userprofile";
+import Settings from "./settings";
 
 export {
     AdminDashboard,
@@ -14,4 +16,6 @@ export {
     BenchOnboarding,
     LearningJourneys,
     CourseRequests,
+    UserProfile,
+    Settings,
 }

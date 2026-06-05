@@ -25,8 +25,8 @@ export class service {
     static async updateAdminUser(id: string, payload: { employeeId?: string; name?: string; email?: string; password?: string; isActive?: boolean }) {
         return await axiosInstance.patch(`/users/admins/${id}`, payload)
     }
-    static async getUsers(params: { page?: number; limit?: number; search?: string }) {
-        const safeParams = { ...params, limit: Math.min(params.limit ?? 20, 100) };
+    static async getUsers(params: { page?: number; limit?: number; search?: string; role?: string; department?: string; status?: string }) {
+        const safeParams = { ...params, limit: params.limit ?? 90 };
         return await axiosInstance.get("/users", { params: safeParams })
     }
     // static async updateAdminUser(id: string, payload: IUpdateAdminUserPayload) {
@@ -42,15 +42,15 @@ export class service {
         return await axiosInstance.get("/users/admins", { params })
     }
     static async getBenchUsers(params: { department?: string } = {}) {
-        return await axiosInstance.get("/users", { params: { page: 1, limit: 100, ...params } })
+        return await axiosInstance.get("/users", { params: { page: 1, limit: 90, ...params } })
     }
     static async updateUserStatus(id: string, status: string) {
         return await axiosInstance.patch(`/users/${id}/status`, { status })
     }
     static async getManagerUsers() {
-        return await axiosInstance.get("/users", { params: { page: 1, limit: 100 } })
+        return await axiosInstance.get("/users", { params: { page: 1, limit: 90 } })
     }
-    static async getCourses(page: number = 1, limit: number = 10) {
+    static async getCourses(page: number = 1, limit: number = 90) {
         return await axiosInstance.get(`/courses?page=${page}&limit=${limit}`)
     }
     static async deleteCourse(id: string) {
@@ -61,6 +61,9 @@ export class service {
     }
     static async assignCourse(payload: { course_id: string; mentor_id: string; user_id: string }) {
         return await axiosInstance.post("/courses/assign", payload)
+    }
+    static async updateAssignedCourse(payload: { user_id: string; course_id: string; coordinator_id: string }) {
+        return await axiosInstance.patch(`/courses/assign`, payload)
     }
     static async getAssignedCourses(params: { page?: number; limit?: number; user_id?: string; status?: string }) {
         return await axiosInstance.get("/courses/assign", { params })
