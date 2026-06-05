@@ -50,6 +50,7 @@ const AdminLogin = () => {
         setIsLoading(true)
         service.userlogin(inputValue)
             .then(response => {
+                console.log('🚀 ~ AdminLogin ~ response:', response)
                 if (response.status === 200) {
                     StorageManager.setAccessToken(response.data?.accessToken)
                     StorageManager.setRefreshToken(response.data?.refreshToken)

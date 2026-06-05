@@ -16,9 +16,9 @@ import TabTitle from '../../../components/tabtitle';
 const BRAND_RED = '#8B1A2E';
 
 const STATUS_CONFIG: Record<string, { color: string; bg: string }> = {
-    'On Bench':  { color: '#C41E3A', bg: '#FFF1F2' },
+    'On Bench': { color: '#C41E3A', bg: '#FFF1F2' },
     'Shadowing': { color: '#D97706', bg: '#FFFBEB' },
-    'On Project':{ color: '#16A34A', bg: '#F0FDF4' },
+    'On Project': { color: '#16A34A', bg: '#F0FDF4' },
 };
 
 interface Course { _id: string; title: string; duration: string; }
@@ -51,14 +51,16 @@ const PAGE_SIZE = 10;
 
 const BenchOnboarding = () => {
     const { role, department: managerDept } = useSelector((state: RootState) => state.adminProfile);
+    console.log(role, managerDept)
     const isManager = role === 'MANAGER';
+    const isLND = managerDept?.toLowerCase().includes('l&d') || managerDept?.toLowerCase().includes('learning');
 
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(true);
-    const [deptFilter, setDeptFilter]     = useState('');
+    const [deptFilter, setDeptFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
-    const [techFilter, setTechFilter]     = useState('');
-    const [page, setPage]                 = useState(1);
+    const [techFilter, setTechFilter] = useState('');
+    const [page, setPage] = useState(1);
     const [assignTarget, setAssignTarget] = useState<Employee | null>(null);
     const [selectedCourse, setSelectedCourse] = useState('');
     const [selectedMentor, setSelectedMentor] = useState('');
@@ -77,7 +79,7 @@ const BenchOnboarding = () => {
                     duration: c.duration_hours ? `${c.duration_hours}h` : (c.duration || ''),
                 })));
             })
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     useEffect(() => {
@@ -91,7 +93,7 @@ const BenchOnboarding = () => {
                     department: u.department || '',
                 })));
             })
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     useEffect(() => {
@@ -100,33 +102,33 @@ const BenchOnboarding = () => {
             .then((res: any) => {
                 const list: any[] = res?.data?.users ?? res?.users ?? (Array.isArray(res?.data) ? res.data : []);
                 const mapped: Employee[] = list
-                .filter((u: any) => u.role?.toUpperCase() !== 'MANAGER')
-                .map((u: any) => ({
-                    _id: u._id,
-                    name: u.name || '',
-                    email: u.email || '',
-                    employeeId: u.employeeId || '',
-                    department: u.department || '',
-                    managerName: u.managerName || '—',
-                    officeLocation: u.officeLocation || '—',
-                    techStack: Array.isArray(u.technologies) ? u.technologies : [],
-                    isActive: u.isActive ?? true,
-                    status: { on_bench: 'On Bench', shadowing: 'Shadowing', on_project: 'On Project' }[u.status as string] ?? 'On Bench',
-                }));
+                    .filter((u: any) => u.role?.toUpperCase() !== 'MANAGER')
+                    .map((u: any) => ({
+                        _id: u._id,
+                        name: u.name || '',
+                        email: u.email || '',
+                        employeeId: u.employeeId || '',
+                        department: u.department || '',
+                        managerName: u.managerName || '—',
+                        officeLocation: u.officeLocation || '—',
+                        techStack: Array.isArray(u.technologies) ? u.technologies : [],
+                        isActive: u.isActive ?? true,
+                        status: { on_bench: 'On Bench', shadowing: 'Shadowing', on_project: 'On Project' }[u.status as string] ?? 'On Bench',
+                    }));
                 setEmployees(
                     isManager && managerDept
                         ? mapped.filter(e => e.department?.trim().toLowerCase() === managerDept.trim().toLowerCase())
                         : mapped
                 );
             })
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => setLoading(false));
     }, [isManager, managerDept]);
 
     const STATUS_API_MAP: Record<string, string> = {
-        'On Bench':  'on_bench',
+        'On Bench': 'on_bench',
         'Shadowing': 'shadowing',
-        'On Project':'on_project',
+        'On Project': 'on_project',
     };
 
     const handleStatusChange = (id: string, newStatus: string) => {
@@ -160,19 +162,19 @@ const BenchOnboarding = () => {
     };
 
     const filtered = employees.filter(e =>
-        (!deptFilter   || e.department === deptFilter) &&
+        (!deptFilter || e.department === deptFilter) &&
         (!statusFilter || e.status === statusFilter) &&
-        (!techFilter   || e.techStack.some(t => t.toLowerCase().includes(techFilter.toLowerCase())))
+        (!techFilter || e.techStack.some(t => t.toLowerCase().includes(techFilter.toLowerCase())))
     );
 
-    const paginated  = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
     const departments = [...new Set(employees.map(e => e.department))];
 
-    const totalCount     = employees.length;
-    const onBenchCount    = employees.filter(e => e.status === 'On Bench').length;
-    const shadowingCount  = employees.filter(e => e.status === 'Shadowing').length;
-    const onProjectCount  = employees.filter(e => e.status === 'On Project').length;
+    const totalCount = employees.length;
+    const onBenchCount = employees.filter(e => e.status === 'On Bench').length;
+    const shadowingCount = employees.filter(e => e.status === 'Shadowing').length;
+    const onProjectCount = employees.filter(e => e.status === 'On Project').length;
 
     return (
         <Fragment>
@@ -187,10 +189,10 @@ const BenchOnboarding = () => {
 
                 {/* Stat Cards */}
                 <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-                    <StatCard label="TOTAL EMPLOYEES" value={String(totalCount)}      sub="All members"      accent="#C41E3A" />
-                    <StatCard label="ON BENCH"        value={String(onBenchCount)}    sub="Awaiting project" accent="#2563EB" />
-                    <StatCard label="SHADOWING"       value={String(shadowingCount)}  sub="Billable Ready"   accent="#D97706" />
-                    <StatCard label="ON PROJECT"      value={String(onProjectCount)}  sub="Active"           accent="#16A34A" />
+                    <StatCard label="TOTAL EMPLOYEES" value={String(totalCount)} sub="All members" accent="#C41E3A" />
+                    <StatCard label="ON BENCH" value={String(onBenchCount)} sub="Awaiting project" accent="#2563EB" />
+                    <StatCard label="SHADOWING" value={String(shadowingCount)} sub="Billable Ready" accent="#D97706" />
+                    <StatCard label="ON PROJECT" value={String(onProjectCount)} sub="Active" accent="#16A34A" />
                 </Box>
 
                 {/* Table Card */}
@@ -238,7 +240,7 @@ const BenchOnboarding = () => {
                         <Table>
                             <TableHead>
                                 <TableRow sx={{ bgcolor: '#F9FAFB' }}>
-                                    {['EMPLOYEE NAME', 'EMPLOYEE ID', 'DEPARTMENT', 'MANAGER', 'LOCATION', 'TECH STACK', 'STATUS', 'ACTIONS'].map(h => (
+                                    {['EMPLOYEE NAME', 'EMPLOYEE ID', 'DEPARTMENT', 'MANAGER', 'LOCATION', isLND ? 'HEAD COUNT' : 'STATUS', 'ACTIONS'].map(h => (
                                         <TableCell key={h} sx={{ fontSize: 11, fontWeight: 700, color: 'grey.500', letterSpacing: '0.5px', py: 1.5, whiteSpace: 'nowrap' }}>{h}</TableCell>
                                     ))}
                                 </TableRow>
@@ -246,13 +248,13 @@ const BenchOnboarding = () => {
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} align="center" sx={{ py: 6, color: 'grey.400', fontSize: 13 }}>
+                                        <TableCell colSpan={7} align="center" sx={{ py: 6, color: 'grey.400', fontSize: 13 }}>
                                             Loading...
                                         </TableCell>
                                     </TableRow>
                                 ) : paginated.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} align="center" sx={{ py: 6, color: 'grey.400', fontSize: 13 }}>
+                                        <TableCell colSpan={7} align="center" sx={{ py: 6, color: 'grey.400', fontSize: 13 }}>
                                             No employees found.
                                         </TableCell>
                                     </TableRow>
@@ -284,33 +286,33 @@ const BenchOnboarding = () => {
                                             <TableCell>
                                                 <Typography sx={{ fontSize: 13, color: 'grey.700', fontWeight: 500 }}>{emp.officeLocation}</Typography>
                                             </TableCell>
-                                            <TableCell>
-                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                                    {emp.techStack.map(t => (
-                                                        <Chip key={t} label={t} size="small" sx={{ fontSize: 11, fontWeight: 600, bgcolor: '#FFF1F2', color: BRAND_RED, border: '1px solid #FECDD3', borderRadius: '6px', width: 'fit-content' }} />
-                                                    ))}
-                                                </Box>
-                                            </TableCell>
 
-                                            {/* STATUS — inline dropdown */}
+                                            {/* STATUS or HEAD COUNT */}
                                             <TableCell>
-                                                <Select
-                                                    size="small"
-                                                    value={emp.status}
-                                                    onChange={e => handleStatusChange(emp._id, e.target.value)}
-                                                    sx={{
-                                                        fontSize: 12, fontWeight: 600,
-                                                        color: sc.color, bgcolor: sc.bg,
-                                                        borderRadius: '20px',
-                                                        '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                                        '& .MuiSelect-icon': { color: sc.color },
-                                                        minWidth: 120,
-                                                    }}
-                                                >
-                                                    {Object.keys(STATUS_CONFIG).map(s => (
-                                                        <MenuItem key={s} value={s} sx={{ fontSize: 13 }}>{s}</MenuItem>
-                                                    ))}
-                                                </Select>
+                                                {isLND ? (
+                                                    <Typography sx={{ fontSize: 13, color: 'grey.700', fontWeight: 600 }}>1</Typography>
+                                                ) : (
+                                                    <Select
+                                                        size="small"
+                                                        value={emp.status}
+                                                        onChange={(e) => handleStatusChange(emp._id, e.target.value as string)}
+                                                        sx={{
+                                                            width: 140,
+                                                            fontSize: 12,
+                                                            fontWeight: 600,
+                                                            color: sc.color,
+                                                            bgcolor: sc.bg,
+                                                            '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                                            '& .MuiSelect-icon': { color: sc.color },
+                                                        }}
+                                                    >
+                                                        {Object.keys(STATUS_CONFIG).map(s => (
+                                                            <MenuItem key={s} value={s} sx={{ fontSize: 12, fontWeight: 500 }}>
+                                                                {s}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                )}
                                             </TableCell>
 
                                             {/* ACTIONS — Assign Course only for On Bench */}

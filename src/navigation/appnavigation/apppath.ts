@@ -6,6 +6,7 @@ export const appnavigationpath = {
     "learningprograms": "/admin/learning-programs",
     "benchonboarding": "/admin/bench-onboarding",
     "learningjourneys": "/admin/learning-journeys",
+    "courserequests": "/admin/course-requests",
     "settings": "/admin/settings",
     "lndcourses": "/lnd/courses",
 } as const;

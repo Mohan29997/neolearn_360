@@ -6,7 +6,8 @@ import {
     PersonAddAlt1Rounded,
     RouteRounded,
     SchoolRounded,
-    SettingsRounded
+    SettingsRounded,
+    AssignmentRounded
 } from "@mui/icons-material";
 import React from "react";
 import { appnavigationpath } from "../../navigation/appnavigation/apppath";
@@ -76,6 +77,14 @@ export const navigations = (role?: UserRole): { _id: number, visible: true | fal
         },
         {
             _id: 8,
+            visible: showForManager,
+            isActive: [appnavigationpath.courserequests],
+            navigator: appnavigationpath.courserequests,
+            name: "Course Requests",
+            icon: (color: string) => <AssignmentRounded fontSize="small" sx={{ color }} />
+        },
+        {
+            _id: 9,
             visible: true,
             isActive: [appnavigationpath.settings],
             navigator: appnavigationpath.settings,

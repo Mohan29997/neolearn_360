@@ -62,4 +62,7 @@ export class service {
     static async assignCourse(payload: { course_id: string; mentor_id: string; user_id: string }) {
         return await axiosInstance.post("/courses/assign", payload)
     }
+    static async getAssignedCourses(params: { page?: number; limit?: number; user_id?: string; status?: string }) {
+        return await axiosInstance.get("/courses/assign", { params })
+    }
 }

@@ -6,6 +6,7 @@ import {
     Departments,
     BenchOnboarding,
     LearningJourneys,
+    CourseRequests,
 } from '../../screens/app';
 import Navigation from '../../components/navigation';
 import { appnavigationpath } from './apppath';
@@ -22,6 +23,7 @@ const AppNavigation = () => {
                 <Route path={appnavigationpath.departments} element={<Departments />} />
                 <Route path={appnavigationpath.benchonboarding} element={<BenchOnboarding />} />
                 <Route path={appnavigationpath.learningjourneys} element={<LearningJourneys />} />
+                <Route path={appnavigationpath.courserequests} element={<CourseRequests />} />
 
                 <Route path='/' index={true} element={<Navigate to={appnavigationpath.admindashboard} replace={true} />} />
                 <Route path='*' index={true} element={<Navigate to={appnavigationpath.admindashboard} replace={true} />} />

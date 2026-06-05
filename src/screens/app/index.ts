@@ -4,6 +4,7 @@ import Courses from "./courses";
 import Departments from "./departments";
 import BenchOnboarding from "./benchonboarding";
 import LearningJourneys from "./learningjourneys";
+import CourseRequests from "./courserequests";
 
 export {
     AdminDashboard,
@@ -12,4 +13,5 @@ export {
     Departments,
     BenchOnboarding,
     LearningJourneys,
+    CourseRequests,
 }

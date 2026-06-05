@@ -8,7 +8,7 @@ import { AddRounded, SearchRounded, CloseRounded, CorporateFareRounded, EditRoun
 import TabTitle from '../../../components/tabtitle';
 import { service } from '../../../service';
 import CreateDepartmentForm from './createdepartment';
-import { BRAND_RED } from './createdepartment/styles';
+import { useStyle } from '../lndcourses/style';
 
 const PAGE_SIZE = 10;
 
@@ -23,6 +23,7 @@ interface Department {
 }
 
 const Departments = () => {
+    const styles = useStyle();
     const [modalOpen, setModalOpen] = useState(false);
     const [editDept, setEditDept] = useState<Department | null>(null);
     const [search, setSearch] = useState('');
@@ -59,21 +60,23 @@ const Departments = () => {
     return (
         <Fragment>
             <TabTitle title="Departments" />
-            <Box sx={{ width: '100%' }}>
+            <Box sx={styles.container}>
                 {/* Header */}
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3 }}>
-                    <Box>
-                        <Typography variant="h4" fontWeight={700} sx={{ color: 'grey.900' }}>Departments</Typography>
-                        <Typography sx={{ color: 'grey.500', fontSize: 13, mt: 0.5 }}>Manage all corporate departments</Typography>
+                <Box sx={styles.headerContainer}>
+                    <Box sx={styles.headerTextContainer}>
+                        <Typography variant="h4" sx={styles.headerTitle}>Departments</Typography>
+                        <Typography sx={styles.headerSubtitle}>Manage all corporate departments</Typography>
                     </Box>
-                    <Button
-                        variant="contained"
-                        startIcon={<AddRounded />}
-                        onClick={openAdd}
-                        sx={{ textTransform: 'none', fontSize: 13, borderRadius: '8px', background: BRAND_RED, '&:hover': { background: '#a01828' } }}
-                    >
-                        Add Department
-                    </Button>
+                    <Box>
+                        <Button
+                            variant="contained"
+                            startIcon={<AddRounded />}
+                            onClick={openAdd}
+                            sx={styles.submitButton}
+                        >
+                            Add Department
+                        </Button>
+                    </Box>
                 </Box>
 
                 {/* Table */}
@@ -97,7 +100,7 @@ const Departments = () => {
                                 {loading ? (
                                     <TableRow>
                                         <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
-                                            <CircularProgress size={28} sx={{ color: BRAND_RED }} />
+                                            <CircularProgress size={28} />
                                         </TableCell>
                                     </TableRow>
                                 ) : paginated.length === 0 ? (
@@ -111,7 +114,7 @@ const Departments = () => {
                                         <TableCell sx={{ py: 1.5 }}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                                 <Box sx={{ width: 36, height: 36, borderRadius: '8px', bgcolor: '#FFF1F2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <CorporateFareRounded sx={{ color: BRAND_RED, fontSize: 18 }} />
+                                                    <CorporateFareRounded sx={{ color: '#8B1A2E', fontSize: 18 }} />
                                                 </Box>
                                                 <Typography sx={{ fontSize: 13.5, fontWeight: 600, color: 'grey.900' }}>{dept.name}</Typography>
                                             </Box>
@@ -158,7 +161,7 @@ const Departments = () => {
                                 : 'No departments found'}
                         </Typography>
                         <Pagination count={totalPages} page={page} onChange={(_, v) => setPage(v)} size="small"
-                            sx={{ '& .MuiPaginationItem-root.Mui-selected': { bgcolor: BRAND_RED, color: '#fff', '&:hover': { bgcolor: '#a01828' } } }} />
+                            sx={{ '& .MuiPaginationItem-root.Mui-selected': { bgcolor: '#8B1A2E', color: '#fff', '&:hover': { bgcolor: '#a01828' } } }} />
                     </Box>
                 </Box>
             </Box>
