@@ -25,7 +25,7 @@ export class service {
     static async updateAdminUser(id: string, payload: { employeeId?: string; name?: string; email?: string; password?: string; isActive?: boolean }) {
         return await axiosInstance.patch(`/users/admins/${id}`, payload)
     }
-    static async getUsers(params: { page?: number; limit?: number; search?: string }) {
+    static async getUsers(params: { page?: number; limit?: number; search?: string; role?: string; department?: string; status?: string }) {
         const safeParams = { ...params, limit: Math.min(params.limit ?? 20, 100) };
         return await axiosInstance.get("/users", { params: safeParams })
     }
@@ -61,6 +61,9 @@ export class service {
     }
     static async assignCourse(payload: { course_id: string; mentor_id: string; user_id: string }) {
         return await axiosInstance.post("/courses/assign", payload)
+    }
+    static async updateAssignedCourse(payload: { user_id: string; course_id: string; coordinator_id: string }) {
+        return await axiosInstance.patch(`/courses/assign`, payload)
     }
     static async getAssignedCourses(params: { page?: number; limit?: number; user_id?: string; status?: string }) {
         return await axiosInstance.get("/courses/assign", { params })
