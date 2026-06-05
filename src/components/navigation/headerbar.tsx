@@ -14,6 +14,7 @@ import { useAppSelector } from '../../hooks/useAppSelector';
 import { StorageManager } from '../../storagemanager';
 import { setIsLogin } from '../../store/reducer/AuthHelper';
 import { resetProfile } from '../../store/reducer/AdminProfile';
+import { hexToRgbColor } from '../../utils/hexToRgbColor';
 
 const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dispatch<SetStateAction<true | false>> }) => {
     const { breakpoints, palette: { common, text, error } } = useMUITheme();
@@ -39,82 +40,36 @@ const HeaderBar = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dis
                 sx={{
                     width: `calc(100% - ${mathUpMd ? isOpen ? "240px" : "60px" : "0px"})`,
                     backgroundColor: common.white,
-                    borderBottom: '1px solid rgba(0,0,0,0.08)',
+                    border: "none",
                     height: 60,
-                    transition: 'ease-in-out 0.2s',
-                    left: mathUpMd ? (isOpen ? 240 : 60) : 0,
-                    justifyContent: 'center',
+                    transition: "ease-in-out  0.2s",
+                    left: mathUpMd ? isOpen ? 240 : 60 : 0,
+                    justifyContent: "center",
+                    borderBottomWidth: 1,
+                    borderBottomStyle: "solid",
+                    borderBottomColor: hexToRgbColor(error.light, .5)
                 }}
             >
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, height: '100%' }}>
-                    {/* Left: menu toggle + search */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-                        <IconButton size="small" onClick={() => setIsOpen(!isOpen)}>
-                            <MenuOpenRounded fontSize="small" sx={{ color: text.secondary, transition: 'ease-in-out 0.4s', transform: `rotate(${isOpen ? '0deg' : '180deg'})` }} />
-                        </IconButton>
-
-                        <Box sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            backgroundColor: '#f5f5f5',
-                            borderRadius: '8px',
-                            px: 1.5,
-                            py: 0.5,
-                            gap: 1,
-                            maxWidth: 420,
-                            width: '100%',
-                        }}>
-                            <SearchRounded fontSize="small" sx={{ color: '#aaa' }} />
-                            <InputBase
-                                placeholder="Search employees, courses, or resources..."
-                                sx={{ fontSize: '13px', color: text.primary, flex: 1 }}
-                            />
-                        </Box>
-                    </Box>
-
-                    {/* Right: icons + user + logout */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <IconButton size="small">
-                            <NotificationsNoneRounded fontSize="small" sx={{ color: text.secondary }} />
-                        </IconButton>
-                        <IconButton size="small">
-                            <HelpOutlineRounded fontSize="small" sx={{ color: text.secondary }} />
-                        </IconButton>
-                        <IconButton size="small">
-                            <AppsRounded fontSize="small" sx={{ color: text.secondary }} />
-                        </IconButton>
-
-                        {/* User info */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 1, pl: 1.5, borderLeft: '1px solid rgba(0,0,0,0.08)' }}>
-                            <Avatar sx={{ width: 34, height: 34, bgcolor: '#8B1A2E', fontSize: '12px', fontWeight: 700 }}>
+                <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+                    <IconButton onClick={() => setIsOpen(!isOpen)}>
+                        <MenuOpenRounded fontSize="medium" sx={{ color: text?.primary, transition: "ease-in-out 0.4s", transform: `rotate(${isOpen ? "0deg" : "180deg"})` }} />
+                    </IconButton>
+                    <Typography></Typography>
+                    <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 1 }}>
+                        <Tooltip title="Support">
+                            <IconButton size="small"><HelpOutlineRounded sx={{ color: text?.secondary }} /></IconButton>
+                        </Tooltip>
+                        <Tooltip title="Notifications">
+                            <IconButton size="small"><NotificationsNoneRounded sx={{ color: text?.secondary }} /></IconButton>
+                        </Tooltip>
+                        <Tooltip title={profile?.name || 'Profile'}>
+                            <Avatar sx={{ width: 32, height: 32, bgcolor: '#8B1A2E', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
                                 {initials}
                             </Avatar>
-                            <Box sx={{ textAlign: 'left' }}>
-                                <Typography sx={{ fontWeight: 600, fontSize: '13px', color: text.primary, lineHeight: 1.3 }}>
-                                    {profile?.name || 'Admin User'}
-                                </Typography>
-                                <Typography sx={{ fontSize: '10px', color: error.dark, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    {profile?.role?.replace(/_/g, ' ') || 'System Architect'}
-                                </Typography>
-                            </Box>
-                            <Tooltip title="Logout" arrow>
-                                <IconButton
-                                    size="small"
-                                    onClick={handleLogout}
-                                    sx={{
-                                        ml: 0.5,
-                                        color: error.main,
-                                        border: '1px solid',
-                                        borderColor: 'rgba(211,47,47,0.25)',
-                                        borderRadius: '8px',
-                                        p: '5px',
-                                        '&:hover': { bgcolor: '#FFF1F2', borderColor: error.main },
-                                    }}
-                                >
-                                    <LogoutRounded sx={{ fontSize: 16 }} />
-                                </IconButton>
-                            </Tooltip>
-                        </Box>
+                        </Tooltip>
+                        <Tooltip title="Logout">
+                            <IconButton size="small" onClick={handleLogout}><LogoutRounded sx={{ color: text?.secondary }} /></IconButton>
+                        </Tooltip>
                     </Box>
                 </Box>
             </AppBar>

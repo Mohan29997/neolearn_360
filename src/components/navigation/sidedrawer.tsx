@@ -2,21 +2,23 @@ import { type Dispatch, Fragment, type SetStateAction, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../../store'
 import {
-    Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText,
+    Box, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Avatar,
     Tooltip, Typography, useMediaQuery, ButtonBase
 } from '@mui/material'
 import { AddRounded } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useMUITheme } from '../../hooks/useMUITheme';
 import { navigations } from './navigations';
+import { useAppSelector } from '../../hooks/useAppSelector';
+import { hexToRgbColor } from '../../utils/hexToRgbColor';
 
 const ACTIVE_BG = '#C41E3A';
 const DARK_BTN_BG = '#1C1C2E';
 
 const SideDrawer = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Dispatch<SetStateAction<true | false>> }) => {
     const Navigate = useNavigate();
-    const { breakpoints, palette: { common } } = useMUITheme();
-    const role = useSelector((state: RootState) => state.adminProfile.role);
+    const { breakpoints, palette: { common, primary, success, text, error } } = useMUITheme();
+    const { name, role } = useAppSelector((state: RootState) => state.adminProfile);
     const mathUpMd = useMediaQuery(breakpoints?.up("lg"));
 
     useEffect(() => {
@@ -44,6 +46,10 @@ const SideDrawer = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Di
                         display: 'flex',
                         flexDirection: 'column',
                         overflowX: 'hidden',
+
+                        borderRightWidth: 1,
+                        borderRightStyle: "solid",
+                        borderRightColor: hexToRgbColor(error.light, .5)
                     },
                 }}
             >
@@ -157,6 +163,29 @@ const SideDrawer = ({ isOpen, setIsOpen }: { isOpen: true | false; setIsOpen: Di
                             </Typography>
                         )}
                     </ButtonBase>
+                </Box>
+
+                <Box
+                    onClick={() => { }}
+                    sx={{
+                        cursor: "pointer",
+                        height: 80,
+                        paddingInline: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        borderTopWidth: 1,
+                        borderTopStyle: "solid",
+                        borderTopColor: hexToRgbColor(error.light, .5)
+
+                    }}>
+                    <Avatar src={'/image.png'} alt={"GB"} />
+                    {isOpen &&
+                        <Box>
+                            <Typography variant='h5' color="primary" sx={{ color: primary.dark }}>{name}</Typography>
+                            <Typography variant='h6' sx={{ color: success.dark }}>{role}</Typography>
+                        </Box>
+                    }
                 </Box>
             </Drawer>
         </Fragment>
