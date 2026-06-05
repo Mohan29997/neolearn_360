@@ -15,5 +15,9 @@ export interface IOnboardUserPayload {
     department: string;
     officeLocation: string;
     manager_name?: string;
-    technologies?: string[];
+}
+
+export interface ILoginPayload {
+    username: string;
+    password: string;
 }

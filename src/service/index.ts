@@ -29,9 +29,9 @@ export class service {
         const safeParams = { ...params, limit: params.limit ?? 90 };
         return await axiosInstance.get("/users", { params: safeParams })
     }
-    static async updateAdminUser(id: string, payload: IUpdateAdminUserPayload) {
-        return await axiosInstance.patch(`/users/admins/${id}`, payload)
-    }
+    // static async updateAdminUser(id: string, payload: IUpdateAdminUserPayload) {
+    //     return await axiosInstance.patch(`/users/admins/${id}`, payload)
+    // }
     static async createDepartment(payload: { departlist: { name: string; manager_name: string; employee_id: string }[] }) {
         return await axiosInstance.post('/departments', payload)
     }

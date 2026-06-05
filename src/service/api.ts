@@ -4,7 +4,7 @@ import { SnackNotification } from '../helper/snackMessage';
 import { store } from '../store';
 import { setIsLogin } from '../store/reducer/AuthHelper';
 
-export const baseURL: string = "/api/v1";
+export const baseURL: string = "https://neo-learn-360.vercel.app/api/v1";
 export const AXIOS = () => {
     const API: AxiosInstance = axiosNative.create({
         baseURL: baseURL,
