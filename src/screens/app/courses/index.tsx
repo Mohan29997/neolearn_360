@@ -41,20 +41,11 @@ const Courses = () => {
       setIsLoading(true);
       // API page is 1-indexed, MUI TablePagination page is 0-indexed
       const res = await service.getCourses(page + 1, rowsPerPage);
-      if (res && res.data) {
-        if (res.data.courses && Array.isArray(res.data.courses)) {
-          setCourses(res.data.courses);
-        } else if (Array.isArray(res.data)) {
-          setCourses(res.data);
-        } else {
-          setCourses([]);
-        }
-
-        if (res.data.pagination && res.data.pagination.total !== undefined) {
-          setTotalCount(res.data.pagination.total);
-        } else {
-          setTotalCount(res.data.courses?.length || 0);
-        }
+      const data = res?.data;
+      if (data) {
+        const list = data.courses ?? (Array.isArray(data) ? data : []);
+        setCourses(list);
+        setTotalCount(data.pagination?.total ?? data.total ?? list.length);
       }
     } catch (error) {
       console.error("Failed to fetch courses:", error);

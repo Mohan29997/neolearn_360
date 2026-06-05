@@ -68,4 +68,7 @@ export class service {
     static async getAssignedCourses(params: { page?: number; limit?: number; user_id?: string; status?: string }) {
         return await axiosInstance.get("/courses/assign", { params })
     }
+    static async getLearningJourneys(params: { page?: number; limit?: number } = {}) {
+        return await axiosInstance.get("/learning-journeys", { params: { page: 1, limit: 20, ...params } })
+    }
 }

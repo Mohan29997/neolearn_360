@@ -7,7 +7,7 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://10.0.28.128:3000',
+        target: 'https://neo-learn-360.vercel.app',
         changeOrigin: true,
       },
     },
