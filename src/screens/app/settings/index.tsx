@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import {
     CheckCircleRounded, AccessTimeRounded, EmojiEventsRounded,
-    EditRounded, SaveRounded, CloseRounded, ShareRounded, EmailRounded,
+    EditRounded, SaveRounded, CloseRounded, ShareRounded,
     LockRounded, StarRounded, WhatshotRounded, WorkspacePremiumRounded, BadgeRounded,
 } from '@mui/icons-material';
 import TabTitle from '../../../components/tabtitle';
@@ -168,11 +168,7 @@ const Settings = () => {
                                 sx={{ textTransform: 'none', fontSize: 12, borderRadius: '8px', borderColor: 'grey.300', color: 'grey.700', fontWeight: 600 }}>
                                 Export Profile
                             </Button>
-                            <Button startIcon={<EmailRounded sx={{ fontSize: 15 }} />} variant="contained" size="small"
-                                component="a" href={`mailto:${profile.email}`}
-                                sx={{ textTransform: 'none', fontSize: 12, borderRadius: '8px', bgcolor: BRAND_RED, fontWeight: 600, '&:hover': { bgcolor: '#a01828' } }}>
-                                Contact Admin
-                            </Button>
+
                         </Box>
                     </Box>
                 </Box>
