@@ -16,3 +16,8 @@ export interface IOnboardUserPayload {
     officeLocation: string;
     manager_name?: string;
 }
+
+export interface ILoginPayload {
+    username: string;
+    password: string;
+}
