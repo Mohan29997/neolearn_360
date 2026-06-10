@@ -12,4 +12,33 @@ export default defineConfig({
       },
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/tests/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov', 'html'],
+      include: [
+        'src/utils/**',
+        'src/shared/**',
+        'src/helper/**',
+        'src/storagemanager/**',
+        'src/store/reducer/**',
+        'src/hooks/**',
+        'src/service/**',
+        'src/constants/**',
+      ],
+      exclude: [
+        'src/service/service.d.ts',
+        'src/tests/**',
+      ],
+      thresholds: {
+        lines: 90,
+        branches: 90,
+        functions: 90,
+        statements: 90,
+      },
+    },
+  },
 })
