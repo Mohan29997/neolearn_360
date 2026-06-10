@@ -56,7 +56,6 @@ const PAGE_SIZE = 10;
 
 const BenchOnboarding = () => {
     const { role, department: managerDept } = useSelector((state: RootState) => state.adminProfile);
-    console.log(role, managerDept)
     const isManager = role === 'MANAGER';
     const isLND = managerDept?.toLowerCase().includes('l&d') || managerDept?.toLowerCase().includes('learning');
 
@@ -104,6 +103,7 @@ const BenchOnboarding = () => {
     }, []);
 
     useEffect(() => {
+        setLoading(true);
         service.getUsers({ page: 1, limit: 90 })
             .then((res: any) => {
                 const list: any[] = res?.data?.users ?? res?.users ?? (Array.isArray(res?.data) ? res.data : []);
@@ -113,15 +113,6 @@ const BenchOnboarding = () => {
                     role: u.role || '',
                     department: u.department || '',
                 })));
-            })
-            .catch(() => { });
-    }, []);
-
-    useEffect(() => {
-        setLoading(true);
-        service.getUsers({ page: 1, limit: 90 })
-            .then((res: any) => {
-                const list: any[] = res?.data?.users ?? res?.users ?? (Array.isArray(res?.data) ? res.data : []);
                 const mapped: Employee[] = list
                     .filter((u: any) => u.role?.toUpperCase() !== 'MANAGER')
                     .map((u: any) => ({

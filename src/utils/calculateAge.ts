@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-// export interface YearsAndMonthsProps { value: string, years: number }
+/** Breakdown of age in years, months, and days with a donation eligibility flag. */
 export interface YearsAndMonthsProps {
     value: string;
     years: number;
@@ -8,6 +8,10 @@ export interface YearsAndMonthsProps {
     days: number;
     isCanDonate: boolean;
 }
+/**
+ * Returns the age in whole years from a date-of-birth string.
+ * @param dob - ISO date string (e.g. `"1995-06-15"`)
+ */
 export const calculateAge = (dob: string): number => {
     const today = dayjs();
     const birthDate = dayjs(dob);
@@ -30,6 +34,11 @@ export const calculateAge = (dob: string): number => {
 
 
 
+/**
+ * Returns a detailed age breakdown (years, months, days) and whether the
+ * person is blood-donation eligible (age 18–65).
+ * @param dob - ISO date string (e.g. `"1995-06-15"`)
+ */
 export const calculateYearsAndMonths = (dob: string): YearsAndMonthsProps => {
     const today = dayjs();
     const birthDate = dayjs(dob);

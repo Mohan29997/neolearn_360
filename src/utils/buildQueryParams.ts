@@ -9,21 +9,17 @@ export type QueryParamValue =
 
 export type QueryParams = Record<string, QueryParamValue>;
 
-// export function buildQueryParams(paramsObject: QueryParams): string {
-//   console.log("paramsObject", paramsObject)
-//   const searchParams = new URLSearchParams();
-
-//   Object.entries(paramsObject).forEach(([key, value]) => {
-//     if (value !== undefined && value !== null && value !== "") {
-//       // searchParams.append(key, String(value));
-//       searchParams.append(key, value as string);
-//     }
-//   });
-
-//   return searchParams.toString();
-// }
-
-
+/**
+ * Serializes a params object into a URL query string.
+ * Arrays are JSON-stringified (e.g. `["a","b"]` → `%5B%22a%22%2C%22b%22%5D`).
+ *
+ * @param params - Object whose values are primitives or arrays
+ * @returns URL-encoded query string without the leading `?`
+ *
+ * @example
+ * buildQueryParams({ page: 1, roles: ['ADMIN', 'MANAGER'] })
+ * // → "page=1&roles=%5B%22ADMIN%22%2C%22MANAGER%22%5D"
+ */
 export const buildQueryParams = (string: QueryParams): string => {
     return new URLSearchParams(
       Object.entries(string).reduce((acc, [key, value]) => {

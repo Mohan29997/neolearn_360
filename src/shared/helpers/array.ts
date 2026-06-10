@@ -45,18 +45,28 @@
 
 
 
+/**
+ * Creates an array of `range` elements produced by `mapfn`.
+ * Returns an empty array for non-positive range values.
+ *
+ * @example
+ * getFilledArray(3, (_, i) => i + 1) // [1, 2, 3]
+ */
 export function getFilledArray<T>(range: number, mapfn: (value: undefined, index: number) => T): T[] {
   return range <= 0 ? [] : Array.from({ length: range }, mapfn)
 }
 
+/** Returns a new array with the element at `indexItem` replaced by `item`. */
 export function updateIndex<T>(array: T[], indexItem: number, item: T): T[] {
   return array.map((el, index) => (indexItem === index ? item : el))
 }
 
+/** Concatenates all strings in an array into a single string (no separator). */
 export function joinArrayStrings(array: string[]): string {
   return array.join('')
 }
 
+/** Returns a new array with `item` appended at the end. Pure — does not mutate the original. */
 export function append<T>(array: T[], item: T): T[] {
   return [...array, item]
 }

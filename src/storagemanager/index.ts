@@ -1,7 +1,22 @@
 import { type IAdminProfileState } from '../store/reducer/AdminProfile';
 import { encryptData, decryptData } from './encryptData';
 
-const salt = '6d090796-ecdf-11ea-adc1-0242ac112345';
+const salt = import.meta.env.VITE_STORAGE_SALT ?? '6d090796-ecdf-11ea-adc1-0242ac112345';
+
+/**
+ * Encrypted local storage abstraction for NeoLearn 360.
+ *
+ * All tokens and profile data are AES-encrypted (via CryptoJS) before writing
+ * to `localStorage`, so sensitive values are never stored as plain text.
+ *
+ * The encryption key comes from the `VITE_STORAGE_SALT` environment variable;
+ * falls back to a default for local development.
+ *
+ * Usage:
+ * - `StorageManager.setAccessToken(token)` — persists access token
+ * - `StorageManager.getAccessToken()` — retrieves and decrypts access token
+ * - `StorageManager.appLogout()` — clears all stored data on sign-out
+ */
 export class StorageManager {
 
     static setAccessToken(token: string) {

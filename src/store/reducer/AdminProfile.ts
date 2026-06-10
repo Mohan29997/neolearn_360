@@ -1,11 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+/** All possible roles in the NeoLearn 360 system. Controls UI access and API scoping. */
 export type UserRole =
     | 'SUPER_ADMIN'
     | 'ADMIN'
     | 'MANAGER'
     | 'EMPLOYEE';
 
+/** Shape of a user record as stored in Redux and returned from the profile API. */
 export interface IUser {
     _id: string;
     employeeId: string;
@@ -31,6 +33,11 @@ const AdminProfileState: IUser | null = {
     updatedAt: "",
 }
 
+/**
+ * Redux slice for the authenticated user's profile.
+ * Populated after login from the `/users/profile` API response.
+ * Used throughout the app for role-based rendering and personalisation.
+ */
 export const AdminProfile = createSlice({
     name: 'AdminProfile',
     initialState: AdminProfileState,

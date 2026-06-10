@@ -128,6 +128,29 @@ const Users = () => {
 
     const clearFilters = () => { setDeptFilter(''); setRoleFilter(''); setStatusFilter(''); setSearch(''); };
 
+    const handleExport = () => {
+        const rows = [
+            ['Employee ID', 'Name', 'Email', 'Role', 'Department', 'Office Location', 'Status'],
+            ...filtered.map(u => [
+                u.employeeId ?? '',
+                u.name ?? '',
+                u.email ?? '',
+                u.role ?? '',
+                u.department ?? '',
+                u.officeLocation ?? '',
+                u.isActive ? 'Active' : 'Inactive',
+            ]),
+        ];
+        const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `users_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <Fragment>
             <TabTitle title="User Management" />
@@ -140,7 +163,7 @@ const Users = () => {
                         <Typography sx={{ color: 'grey.500', fontSize: 13, mt: 0.5 }}>Manage and oversee all enterprise learners</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', gap: 1.5 }}>
-                        <Button variant="outlined" startIcon={<FileDownloadRounded />}
+                        <Button variant="outlined" startIcon={<FileDownloadRounded />} onClick={handleExport}
                             sx={{ textTransform: 'none', fontSize: 13, borderColor: 'grey.300', color: 'grey.700', borderRadius: '8px' }}>
                             Export List
                         </Button>

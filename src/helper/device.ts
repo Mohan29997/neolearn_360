@@ -1,3 +1,9 @@
+/**
+ * Reads the browser's `navigator.userAgent` and `navigator.productSub`
+ * to build a device identifier string. Used for logging/audit context.
+ *
+ * @returns `{ deviceName, deviceUniqueId }` — both derived from browser properties
+ */
 export const getReadableDeviceName = (): { deviceName: string, deviceUniqueId: string | number } => {
     const ua = navigator.userAgent;
     const productSub = navigator?.productSub;
