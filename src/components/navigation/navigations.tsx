@@ -7,7 +7,8 @@ import {
     RouteRounded,
     SchoolRounded,
     SettingsRounded,
-    AssignmentRounded
+    AssignmentRounded,
+    FactCheckRounded
 } from "@mui/icons-material";
 import React from "react";
 import { appnavigationpath } from "../../navigation/appnavigation/apppath";
@@ -85,6 +86,14 @@ export const navigations = (role?: UserRole): { _id: number, visible: true | fal
         },
         {
             _id: 9,
+            visible: showForManager,
+            isActive: [appnavigationpath.process],
+            navigator: appnavigationpath.process,
+            name: "Process",
+            icon: (color: string) => <FactCheckRounded fontSize="small" sx={{ color }} />
+        },
+        {
+            _id: 10,
             visible: true,
             isActive: [appnavigationpath.settings],
             navigator: appnavigationpath.settings,

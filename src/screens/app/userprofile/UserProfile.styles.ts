@@ -1,0 +1,31 @@
+import { BRAND, SURFACE } from '../../../constants/brand.constants';
+
+export const userProfileStyles = {
+  pageTitle: { color: 'grey.900', mb: 0.5 },
+  pageSub: { color: 'grey.500', fontSize: 13, mb: 3 },
+  avatarCard: { border: `1px solid ${SURFACE.border}`, borderRadius: '16px', p: 3, textAlign: 'center' },
+  avatar: { width: 88, height: 88, bgcolor: BRAND.red, fontSize: 28, fontWeight: 700, mx: 'auto', mb: 2 },
+  profileName: { fontWeight: 700, fontSize: 17, color: 'grey.900' },
+  profileEmail: { fontSize: 12, color: 'grey.500', mt: 0.3 },
+  chipsRow: { mt: 1.5, display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' },
+  roleChip: {
+    fontSize: 11,
+    fontWeight: 700,
+    bgcolor: BRAND.redBg,
+    color: BRAND.red,
+    border: `1px solid ${BRAND.redBorder}`,
+    borderRadius: '6px',
+  },
+  activeChip: { fontSize: 11, fontWeight: 700, borderRadius: '6px', bgcolor: '#DCFCE7', color: '#15803D' },
+  inactiveChip: { fontSize: 11, fontWeight: 700, borderRadius: '6px', bgcolor: SURFACE.muted, color: '#6B7280' },
+  detailsCard: { border: `1px solid ${SURFACE.border}`, borderRadius: '16px', p: 3, height: '100%' },
+  sectionTitle: { fontWeight: 700, fontSize: 14, color: 'grey.700', mb: 2 },
+  techCard: { border: `1px solid ${SURFACE.border}`, borderRadius: '16px', p: 3 },
+  techHeader: { display: 'flex', alignItems: 'center', gap: 1, mb: 2 },
+  techChipBox: { display: 'flex', flexWrap: 'wrap', gap: 1 },
+  techChip: { fontSize: 12, fontWeight: 500, bgcolor: SURFACE.muted, color: 'grey.700', borderRadius: '6px' },
+  infoRowRoot: { display: 'flex', alignItems: 'flex-start', gap: 1.5 },
+  infoRowIcon: { mt: 0.2, color: 'grey.400', flexShrink: 0 },
+  infoLabel: { fontSize: 11, fontWeight: 600, color: 'grey.500', textTransform: 'uppercase', letterSpacing: '0.5px' },
+  infoValue: { fontSize: 13.5, color: 'grey.800', fontWeight: 500, mt: 0.2 },
+} as const;

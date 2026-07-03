@@ -7,6 +7,7 @@ import LearningJourneys from "./learningjourneys";
 import CourseRequests from "./courserequests";
 import UserProfile from "./userprofile";
 import Settings from "./settings";
+import Process from "./process";
 
 export {
     AdminDashboard,
@@ -18,4 +19,5 @@ export {
     CourseRequests,
     UserProfile,
     Settings,
+    Process,
 }

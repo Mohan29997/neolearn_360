@@ -1,5 +1,6 @@
 import { axiosInstance } from "./api";
 import type { ILoginPayload, IOnboardUserPayload, IUpdateAdminUserPayload } from "./service";
+import type { IAddCoursePayload } from "../types/course.types";
 
 /**
  * Central API service layer for NeoLearn 360.
@@ -35,7 +36,7 @@ export class service {
      * Onboard a new user into the system.
      * @param payload - User onboarding data including role, department, tech stack
      */
-    static async onboardUser(payload: IOnboardUserPayload) {
+    static async onboardUser(payload: IOnboardUserPayload | Record<string, unknown>) {
         return await axiosInstance.post("/users/onboard", payload)
     }
 
@@ -54,8 +55,13 @@ export class service {
      * @param id - MongoDB `_id` of the user to update
      * @param payload - Fields to update; `password` is optional (omit to keep unchanged)
      */
-    static async updateAdminUser(id: string, payload: { employeeId?: string; name?: string; email?: string; password?: string; isActive?: boolean }) {
+    static async updateAdminUser(id: string, payload: Record<string, unknown>) {
         return await axiosInstance.patch(`/users/admins/${id}`, payload)
+    }
+
+    /** Delete an admin user by ID. */
+    static async deleteAdminUser(id: string) {
+        return await axiosInstance.delete(`/users/admins/${id}`)
     }
 
     /**
@@ -83,6 +89,34 @@ export class service {
      */
     static async updateDepartment(id: string, payload: { name: string; manager_name: string; employee_id: string; isActive: boolean }) {
         return await axiosInstance.patch(`/departments/${id}`, payload)
+    }
+
+    /**
+     * Delete a department and its sub-departments.
+     * @param id - Department `_id`
+     */
+    static async deleteDepartment(id: string) {
+        return await axiosInstance.delete(`/departments/${id}`)
+    }
+
+    /** Fetch sub-departments of a department. */
+    static async getSubDepartments(id: string) {
+        return await axiosInstance.get(`/departments/${id}/sub-departments`)
+    }
+
+    /** Create a sub-department under a parent department. */
+    static async createSubDepartment(parentId: string, payload: { name: string; managerName: string }) {
+        return await axiosInstance.post(`/departments/${parentId}/sub-departments`, payload)
+    }
+
+    /** Update a sub-department. */
+    static async updateSubDepartment(subId: string, payload: { name: string; managerName: string; isActive?: boolean }) {
+        return await axiosInstance.patch(`/departments/sub-departments/${subId}`, payload)
+    }
+
+    /** Delete a sub-department. */
+    static async deleteSubDepartment(subId: string) {
+        return await axiosInstance.delete(`/departments/sub-departments/${subId}`)
     }
 
     /**
@@ -136,15 +170,15 @@ export class service {
      * Create a new course in the enterprise library.
      * @param payload - Course data: title, provider, level, duration, url, description
      */
-    static async addCourse(payload: any) {
+    static async addCourse(payload: IAddCoursePayload) {
         return await axiosInstance.post("/courses", payload)
     }
 
     /**
      * Assign a course to a bench employee with a designated mentor.
-     * @param payload - `{ course_id, mentor_id, user_id }`
+     * @param payload - `{ mentor_id, user_id, pre_assessment_score }`
      */
-    static async assignCourse(payload: { course_id: string; mentor_id: string; user_id: string }) {
+    static async assignCourse(payload: { mentor_id: string; user_id: string; pre_assessment_score: number }) {
         return await axiosInstance.post("/courses/assign", payload)
     }
 
@@ -171,5 +205,10 @@ export class service {
      */
     static async getLearningJourneys(params: { page?: number; limit?: number } = {}) {
         return await axiosInstance.get("/learning-journeys", { params: { page: 1, limit: 20, ...params } })
+    }
+
+    /** Fetch the full organisation hierarchy tree. */
+    static async getOrgTree() {
+        return await axiosInstance.get("/users/org-tree")
     }
 }

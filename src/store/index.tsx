@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import AuthHelper from './reducer/AuthHelper'
 import AdminProfile from './reducer/AdminProfile'
+import ProcessReducer from './reducer/ProcessSlice'
 
 export const store = configureStore({
     reducer: {
         authHelper: AuthHelper,
         adminProfile: AdminProfile,
+        process: ProcessReducer,
     },
 });
 

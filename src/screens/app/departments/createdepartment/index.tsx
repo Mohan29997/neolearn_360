@@ -9,7 +9,7 @@ const FieldLabel = ({ children }: { children: React.ReactNode }) => (
     <Typography sx={fieldLabelSx}>{children}</Typography>
 );
 
-interface Manager { _id: string; fullName: string; name?: string; employeeId?: string; employee_id?: string; }
+interface Manager { _id: string; fullName: string; name?: string; employeeId?: string; employee_id?: string; role?: string; }
 
 interface EditData {
     _id: string;
@@ -34,12 +34,14 @@ const CreateDepartmentForm = ({ onSuccess, editData }: Props) => {
     useEffect(() => {
         service.getManagerUsers().then((res: any) => {
             const allUsers: Record<string, string>[] = res?.data?.users ?? res?.users ?? (Array.isArray(res?.data) ? res.data : []);
+            const ALLOWED = ['SUPER_ADMIN', 'VP', 'DM', 'L&D_MANAGER'];
             const arr: Manager[] = allUsers
-                .filter((u) => String(u.role).toUpperCase() === 'MANAGER')
+                .filter((u) => ALLOWED.includes(String(u.role).toUpperCase()))
                 .map((u) => ({
                     _id: u._id,
                     fullName: u.fullName || u.name || '',
                     employeeId: u.employeeId || '',
+                    role: u.role,
                 }));
             setManagers(arr);
             if (editData?.managerName) {
@@ -89,7 +91,7 @@ const CreateDepartmentForm = ({ onSuccess, editData }: Props) => {
             </Box>
 
             <Box sx={{ mb: 2.5 }}>
-                <FieldLabel>Manager Name</FieldLabel>
+                <FieldLabel>VP Name</FieldLabel>
                 <FormControl fullWidth size="small">
                     <Select
                         size="small"
@@ -101,7 +103,8 @@ const CreateDepartmentForm = ({ onSuccess, editData }: Props) => {
                     >
                         {managers.map(m => {
                             const label = m.fullName || m.name || '';
-                            return <MenuItem key={m._id} value={m._id}>{label}</MenuItem>;
+                            const roleLabel = m.role ? ` (${m.role})` : '';
+                            return <MenuItem key={m._id} value={m._id}>{label}{roleLabel}</MenuItem>;
                         })}
                     </Select>
                 </FormControl>
